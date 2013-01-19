@@ -13,32 +13,32 @@
  * limitations under the License.
  */
 
-package jncryptor.cryptography;
+package com.wortharead.jncryptor.cryptography;
 
 /**
  * 
  */
-class InvalidDataException extends Exception {
+public class InvalidHMACException extends CryptorException {
 
   private static final long serialVersionUID = 1L;
 
   /**
    * 
    */
-  public InvalidDataException() {
+  public InvalidHMACException() {
   }
 
   /**
    * @param message
    */
-  public InvalidDataException(String message) {
+  public InvalidHMACException(String message) {
     super(message);
   }
 
   /**
    * @param cause
    */
-  public InvalidDataException(Throwable cause) {
+  public InvalidHMACException(Throwable cause) {
     super(cause);
   }
 
@@ -46,7 +46,8 @@ class InvalidDataException extends Exception {
    * @param message
    * @param cause
    */
-  public InvalidDataException(String message, Throwable cause) {
-    super(message, cause);   
+  public InvalidHMACException(String message, Throwable cause) {
+    super(message, cause);
   }
+
 }

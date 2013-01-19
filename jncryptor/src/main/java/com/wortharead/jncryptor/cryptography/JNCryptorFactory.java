@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package jncryptor.cryptography;
+package com.wortharead.jncryptor.cryptography;
 
 import java.io.File;
 import java.io.IOException;

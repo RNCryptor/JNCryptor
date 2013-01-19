@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package jncryptor.cryptography;
+package com.wortharead.jncryptor.cryptography;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +25,9 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+
+import com.wortharead.jncryptor.cryptography.JNCryptor;
+import com.wortharead.jncryptor.cryptography.JNCryptorFactory;
 
 /**
  * 

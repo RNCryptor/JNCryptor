@@ -1,1 +1,1 @@
-jncryptor.cryptography.AES256v1Cryptor
+com.wortharead.jncryptor.cryptography.AES256v1Cryptor
