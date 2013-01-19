@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor.cryptography;
+package com.wortharead.jncryptor;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,8 +21,8 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.wortharead.jncryptor.cryptography.AES256Ciphertext;
-import com.wortharead.jncryptor.cryptography.InvalidDataException;
+import com.wortharead.jncryptor.AES256Ciphertext;
+import com.wortharead.jncryptor.InvalidDataException;
 
 /**
  * 

@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor.cryptography;
+package com.wortharead.jncryptor;
 
 import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.wortharead.jncryptor.cryptography.AES256v1Cryptor;
-import com.wortharead.jncryptor.cryptography.CryptorException;
-import com.wortharead.jncryptor.cryptography.InvalidHMACException;
+import com.wortharead.jncryptor.AES256v1Cryptor;
+import com.wortharead.jncryptor.CryptorException;
+import com.wortharead.jncryptor.InvalidHMACException;
 
 /**
  * 

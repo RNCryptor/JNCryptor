@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor.cryptography;
+package com.wortharead.jncryptor;
 
 import javax.crypto.SecretKey;
 
