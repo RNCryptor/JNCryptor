@@ -15,14 +15,13 @@
 
 package com.wortharead.jncryptor;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.Charsets;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.wortharead.jncryptor.AES256v1Cryptor;
-import com.wortharead.jncryptor.CryptorException;
-import com.wortharead.jncryptor.InvalidHMACException;
 
 /**
  * 
@@ -77,26 +76,30 @@ public class AES256v1CryptorTest {
   }
 
   /**
-   * Quick test to produce values to compare implementations.
+   * Tests decryption of a known ciphertext.
    * 
    * @throws Exception
    */
   @Test
-  public void testValuePrinting() throws Exception {
+  public void testKnownCiphertext() throws Exception {
     final String password = "P@ssw0rd!";
-    final String plaintextString = "Hello, World! Let's use a few blocks with a longer sentence.";
-    final byte[] plaintextBytes = plaintextString.getBytes();
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
-    byte[] ciphertext = cryptor.encryptData(plaintextBytes,
-        password.toCharArray());
+    final String expectedPlaintextString = "Hello, World! Let's use a few blocks "
+        + "with a longer sentence.";
 
-    System.out.println(String.format("Password: %s", password));
-    System.out
-        .println(String.format("Plaintext (string): %s", plaintextString));
-    System.out.println(String.format("Plaintext (bytes): %s",
-        DatatypeConverter.printHexBinary(plaintextBytes)));
-    System.out.println(String.format("Ciphertext: %s",
-        DatatypeConverter.printHexBinary(ciphertext)));
+    // This known value has been confirmed with Rob Napier
+    String knownCiphertext = "0101EF297BCD83B68AF69FC4B7040A0E5EB9F349EFAF051030748FD1"
+        + "9AAA4362E9D6F4FCADC4EFDBC3EBA1B6251BA8ADAC668425523887BAA3334A01F4450A4BF6F80CA3"
+        + "FFED1408D7EB7DE0254665EC387C43D5AEE0ADFF9CB7A9E939E196E071ACBC4A1E7E09F15502D937"
+        + "9D307F66C4A0D22FE8731E3A69872355BD38C7967355";
+
+    byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
+
+    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    byte[] plaintext = cryptor.decryptData(ciphertext, password.toCharArray());
+
+    String plaintextString = new String(plaintext, Charsets.UTF_8);
+
+    assertEquals(expectedPlaintextString, plaintextString);
   }
 
   /**

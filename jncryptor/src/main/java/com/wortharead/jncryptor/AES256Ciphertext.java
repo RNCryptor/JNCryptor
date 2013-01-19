@@ -34,6 +34,7 @@ class AES256Ciphertext {
   static final int HMAC_SIZE = 32;
   static final int EXPECTED_VERSION = 1;
   static final int HEADER_SIZE = 2;
+  static final byte HAS_PASSWORD_OPTION = 0x01;
 
   static final int MINIMUM_LENGTH_WITH_PASSWORD = HEADER_SIZE
       + ENCRYPTION_SALT_LENGTH + HMAC_SALT_LENGTH + AES_BLOCK_SIZE + HMAC_SIZE;
@@ -110,7 +111,7 @@ class AES256Ciphertext {
   AES256Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
       byte[] ciphertext, byte[] hmac) {
     this.version = EXPECTED_VERSION;
-    this.options = 0x00;
+    this.options = HAS_PASSWORD_OPTION;
     this.encryptionSalt = encryptionSalt;
     this.hmacSalt = hmacSalt;
     this.iv = iv;
@@ -136,8 +137,8 @@ class AES256Ciphertext {
           "Expected version %d but found %d.", EXPECTED_VERSION, version));
     }
 
-    if (options != 0x00) {
-      throw new InvalidDataException("Options byte should be zero.");
+    if (options != HAS_PASSWORD_OPTION) {
+      throw new InvalidDataException("Options byte should be 0x01.");
     }
 
     validateLength(encryptionSalt, "encryption salt", ENCRYPTION_SALT_LENGTH);
@@ -175,7 +176,7 @@ class AES256Ciphertext {
   byte[] getRawData() {
 
     // Header: [Version = 0x01 | Options = 0x00]
-    byte[] header = new byte[] { EXPECTED_VERSION, 0x00 };
+    byte[] header = new byte[] { EXPECTED_VERSION, HAS_PASSWORD_OPTION };
 
     // Pack result
     byte[] result = new byte[header.length + encryptionSalt.length

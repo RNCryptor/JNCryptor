@@ -83,10 +83,10 @@ public class AES256CiphertextTest {
   }
 
   @Test(expected = InvalidDataException.class)
-  public void testNonZeroOption() throws Exception {
+  public void testInvalidOption() throws Exception {
     byte[] data = new byte[AES256Ciphertext.MINIMUM_LENGTH_WITH_PASSWORD];
     data[0] = 1; // Version 1 = correct
-    data[1] = 1; // Options = 1 (incorrect)
+    data[1] = 2; // Options = 2 (incorrect)
 
     new AES256Ciphertext(data);
   }
@@ -95,6 +95,7 @@ public class AES256CiphertextTest {
   public void testSimple() throws Exception {
     byte[] data = new byte[AES256Ciphertext.MINIMUM_LENGTH_WITH_PASSWORD];
     data[0] = 1; // Version 1 = correct
+    data[1] = 1; // Option = 0x01 (has password)
 
     new AES256Ciphertext(data);
   }
