@@ -23,35 +23,40 @@ public class CryptorException extends Exception {
   private static final long serialVersionUID = 1L;
 
   /**
-   * 
+   * Constructs a new exception.
    */
   public CryptorException() {
-    // TODO Auto-generated constructor stub
   }
 
   /**
+   * Constructs a new exception.
+   * 
    * @param message
+   *          error message
    */
   public CryptorException(String message) {
     super(message);
-    // TODO Auto-generated constructor stub
   }
 
   /**
+   * Constructs a new exception.
+   * 
    * @param cause
+   *          the cause of the exception
    */
   public CryptorException(Throwable cause) {
     super(cause);
-    // TODO Auto-generated constructor stub
   }
 
   /**
+   * Constructs a new exception.
+   * 
    * @param message
+   *          error message
    * @param cause
+   *          the cause of the exception
    */
   public CryptorException(String message, Throwable cause) {
     super(message, cause);
-    // TODO Auto-generated constructor stub
   }
-
 }

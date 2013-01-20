@@ -32,11 +32,11 @@ import org.slf4j.LoggerFactory;
  * Factory used to obtain {@link JNCryptor} instances. A different instance is
  * available for each version of the original RNCryptor library. The most modern
  * implementation is always available by calling:
- * 
+ * <p>
  * <pre>
  * RNCryptor cryptor = RNCryptorFactory.getCryptor();
  * </pre>
- * 
+ * <p>
  * If a particular version is required, it can be obtained with the
  * {@link #getCryptor(int) getCryptor(int version)} method. A full list of the
  * available instances is obtained through the {@link #getCryptors()} method.

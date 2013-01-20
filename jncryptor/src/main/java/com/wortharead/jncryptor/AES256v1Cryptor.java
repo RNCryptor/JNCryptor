@@ -30,44 +30,44 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.Validate;
 
 /**
- * This {@link JNCryptor} instance produces data in the following (version 1)
- * format:
+ * This {@link JNCryptor} instance produces data in version 1 format.
+ * <p>
  * 
  * <pre>
- * |     version     | options | encryptionSalt | HMACSalt |  IV   | ... ciphertext ... |   HMAC   |
- * |        0        |    1    |      2-9       |  10-17   | 18-33 | <-      ...     -> | n-32 - n |
+ * | version | options | encryption salt | HMAC salt |   IV   | ... ciphertext ... |     HMAC    |
+ * |    0    |    1    |       2->9      |   10->17  | 18->33 | <-      ...     -> | (n-32) -> n |
  * </pre>
  * 
  * <ul>
- * <li>version (1 byte): Data format version. Always {@code 0x01}.</li>
- * <li>options (1 byte): Reserved. Always {@code 0x00}.</li>
- * <li>encryptionSalt (8 bytes)</li>
- * <li>HMACSalt (8 bytes)</li>
- * <li>IV (16 bytes)</li>
- * <li>ciphertext (variable): 256-bit AES encrypted, CBC-mode with PKCS&nbsp;#5
- * padding.</li>
- * <li>HMAC (32 bytes)</li>
+ * <li><b>version</b> (1 byte): Data format version. Always {@code 0x01}.</li>
+ * <li><b>options</b> (1 byte): Always {@code 0x01}, to indicate that a password
+ * is used.</li>
+ * <li><b>encryption salt</b> (8 bytes)</li>
+ * <li><b>HMAC salt</b> (8 bytes)</li>
+ * <li><b>IV</b> (16 bytes)</li>
+ * <li><b>ciphertext</b> (variable): 256-bit AES encrypted, CBC-mode with
+ * PKCS&nbsp;#5 padding.</li>
+ * <li><b>HMAC</b> (32 bytes)</li>
  * </ul>
  * 
- * <h3>Details</h3>
+ * <p>
+ * The encryption key is derived using the PKBDF2 function, using a random
+ * eight-byte encryption salt, the supplied password and 10,000 iterations. The
+ * HMAC key is derived in a similar fashion, using it's own random eight-byte
+ * HMAC salt. Both salt values are stored in the ciphertext output (as shown
+ * above).
  * 
  * <p>
- * EncryptionKey = PKBDF2(encryptionSalt, 10k iterations, password)
- * </p>
+ * The ciphertext is AES-256-CBC encrypted, using a randomly generated IV and
+ * the encryption key (described above), with PKCS&nbsp;#5 padding.
  * <p>
- * HMACKey = PKBDF2(HMACSalt, 10k iterations, password)
- * </p>
- * <p>
- * Ciphertext is AES-256-CBC encrypted using the given IV and the EncryptionKey
- * (above), with PKCS&nbsp;#5 padding.
- * </p>
- * <p>
- * HMAC is generated using the ciphertext and the HMACKey (above) and the
- * SHA-256 PRF.
- * </p>
+ * The HMAC is generated using the ciphertext and the HMAC key (described above)
+ * and the SHA-256 PRF.
  * 
- * @see https://github.com/rnapier/RNCryptor/wiki/Data-Format, from which most
- *      of the information above was shamelessly copied
+ * 
+ * @see <a
+ *      href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+ *      , from which most of the information above was shamelessly copied
  */
 public class AES256v1Cryptor implements JNCryptor {
 

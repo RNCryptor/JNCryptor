@@ -49,8 +49,9 @@ public interface JNCryptor {
    * Decrypts data with the supplied password.
    * 
    * @param ciphertext
-   *          data to decrypt. Must be in the format described at
-   *          https://github.com/rnapier/RNCryptor/wiki/Data-Format
+   *          data to decrypt. Must be in the format described at <a
+   *          href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
+   *          >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
    * @param password
    *          password to use for the decryption. A <code>null</code> value or
    *          an empty char array are considered equal (and are both valid
@@ -70,8 +71,9 @@ public interface JNCryptor {
    *          password to use for the encryption. A <code>null</code> value or
    *          an empty char array are considered equal (and are both valid
    *          values).
-   * @return the ciphertext, in the format described at
-   *         https://github.com/rnapier/RNCryptor/wiki/Data-Format
+   * @return the ciphertext, in the format described at <a
+   *         href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
+   *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
    */
   byte[] encryptData(byte[] plaintext, char[] password) throws CryptorException;
 
