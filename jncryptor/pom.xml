@@ -5,11 +5,19 @@
   <groupId>com.wortharead</groupId>
   <artifactId>jncryptor</artifactId>
   <version>0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>jncryptor</name>
+  <description>JNCryptor is a Java port of Rob Napier's RNCryptor library for iOS.</description>
 
   <url>http://code.google.com/p/jncryptor/</url>
   <issueManagement>
     <url>http://code.google.com/p/jncryptor/issues/list</url>
   </issueManagement>
+
+  <scm>
+    <url>http://code.google.com/p/jncryptor/source/browse/</url>
+  </scm>
 
   <developers>
     <developer>
@@ -20,8 +28,7 @@
 
   <inceptionYear>2013</inceptionYear>
 
-  <name>jncryptor</name>
-  <description>JNCryptor is a Java port of Rob Napier's RNCryptor library for iOS.</description>
+
 
 
   <licenses>
