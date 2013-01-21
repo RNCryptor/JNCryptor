@@ -117,6 +117,44 @@ public class AES256v1Cryptor implements JNCryptor {
     }
   }
 
+  /**
+   * Decrypts data.
+   * 
+   * @param trimmedCiphertext
+   *          the ciphertext from the message
+   * @param iv
+   *          the IV
+   * @param hmac
+   *          the HMAC value from the message
+   * @param decryptionKey
+   *          the key to decrypt
+   * @param hmacKey
+   *          the key to recalculate the HMAC
+   * @return the decrypted data
+   * @throws CryptorException
+   *           if a JCE error occurs
+   */
+  private byte[] decryptData(byte[] trimmedCiphertext, byte[] iv, byte[] hmac,
+      SecretKey decryptionKey, SecretKey hmacKey) throws CryptorException {
+
+    try {
+      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(hmacKey);
+      byte[] hmacValue = mac.doFinal(trimmedCiphertext);
+
+      if (!Arrays.equals(hmacValue, hmac)) {
+        throw new InvalidHMACException("Incorrect HMAC value.");
+      }
+
+      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
+      cipher.init(Cipher.DECRYPT_MODE, decryptionKey, new IvParameterSpec(iv));
+
+      return cipher.doFinal(trimmedCiphertext);
+    } catch (GeneralSecurityException e) {
+      throw new CryptorException("Failed to decrypt message.", e);
+    }
+  }
+
   @Override
   public byte[] decryptData(byte[] ciphertext, char[] password)
       throws CryptorException {
@@ -124,28 +162,20 @@ public class AES256v1Cryptor implements JNCryptor {
 
     try {
       AES256Ciphertext aesCiphertext = new AES256Ciphertext(ciphertext);
+
+      if (!aesCiphertext.isPasswordBased()) {
+        throw new CryptorException(
+            "Ciphertext was not encrypted with a password.");
+      }
+
       SecretKey decryptionKey = keyForPassword(password,
           aesCiphertext.getEncryptionSalt());
       SecretKey hmacKey = keyForPassword(password, aesCiphertext.getHmacSalt());
 
-      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
-      mac.init(hmacKey);
-      byte[] hmacValue = mac.doFinal(aesCiphertext.getCiphertext());
-
-      if (!Arrays.equals(hmacValue, aesCiphertext.getHmac())) {
-        throw new InvalidHMACException("Incorrect HMAC value.");
-      }
-
-      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
-      cipher.init(Cipher.DECRYPT_MODE, decryptionKey, new IvParameterSpec(
-          aesCiphertext.getIv()));
-
-      return cipher.doFinal(aesCiphertext.getCiphertext());
-
+      return decryptData(aesCiphertext.getCiphertext(), aesCiphertext.getIv(),
+          aesCiphertext.getHmac(), decryptionKey, hmacKey);
     } catch (InvalidDataException e) {
       throw new CryptorException("Unable to parse ciphertext.", e);
-    } catch (GeneralSecurityException e) {
-      throw new CryptorException("Failed to decrypt message.", e);
     }
   }
 
@@ -221,4 +251,52 @@ public class AES256v1Cryptor implements JNCryptor {
   public int getVersionNumber() {
     return VERSION;
   }
+
+  @Override
+  public byte[] decryptData(byte[] ciphertext, SecretKey decryptionKey,
+      SecretKey hmacKey) throws CryptorException, InvalidHMACException {
+
+    Validate.notNull(ciphertext, "Ciphertext cannot be null.");
+    Validate.notNull(decryptionKey, "Decryption key cannot be null.");
+    Validate.notNull(hmacKey, "HMAC key cannot be null.");
+
+    AES256Ciphertext aesCiphertext;
+    try {
+      aesCiphertext = new AES256Ciphertext(ciphertext);
+
+      return decryptData(aesCiphertext.getCiphertext(), aesCiphertext.getIv(),
+          aesCiphertext.getHmac(), decryptionKey, hmacKey);
+
+    } catch (InvalidDataException e) {
+      throw new CryptorException("Unable to parse ciphertext.", e);
+    }
+  }
+
+  @Override
+  public byte[] encryptData(byte[] plaintext, SecretKey encryptionKey,
+      SecretKey hmacKey) throws CryptorException {
+
+    Validate.notNull(plaintext, "Plaintext cannot be null.");
+    Validate.notNull(encryptionKey, "Encryption key cannot be null.");
+    Validate.notNull(hmacKey, "HMAC key cannot be null.");
+
+    byte[] iv = getSecureRandomData(AES_BLOCK_SIZE);
+
+    try {
+      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
+      cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
+      byte[] ciphertext = cipher.doFinal(plaintext);
+
+      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(hmacKey);
+      byte[] hmac = mac.doFinal(ciphertext);
+
+      AES256Ciphertext output = new AES256Ciphertext(iv, ciphertext, hmac);
+      return output.getRawData();
+
+    } catch (GeneralSecurityException e) {
+      throw new CryptorException("Failed to generate ciphertext.", e);
+    }
+  }
+
 }

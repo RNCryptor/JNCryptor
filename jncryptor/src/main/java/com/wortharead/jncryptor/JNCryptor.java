@@ -63,6 +63,23 @@ public interface JNCryptor {
       throws CryptorException, InvalidHMACException;
 
   /**
+   * Decrypts data with the supplied password.
+   * 
+   * @param ciphertext
+   *          data to decrypt. Must be in the format described at <a
+   *          href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
+   *          >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   * @param decryptionKey
+   *          the key to decrypt with
+   * @param hmacKey
+   *          the key to verify the HMAC with
+   * @return the plain text
+   * @throws InvalidHMACException
+   */
+  byte[] decryptData(byte[] ciphertext, SecretKey decryptionKey,
+      SecretKey hmacKey) throws CryptorException, InvalidHMACException;
+
+  /**
    * Encrypts data with the supplied password.
    * 
    * @param plaintext
@@ -76,6 +93,22 @@ public interface JNCryptor {
    *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
    */
   byte[] encryptData(byte[] plaintext, char[] password) throws CryptorException;
+
+  /**
+   * Encrypts data with the supplied password.
+   * 
+   * @param plaintext
+   *          the data to encrypt
+   * @param encryptionKey
+   *          key to use for encryption
+   * @param hmacKey
+   *          key to use for computing the HMAC
+   * @return the ciphertext, in the format described at <a
+   *         href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
+   *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   */
+  byte[] encryptData(byte[] plaintext, SecretKey encryptionKey,
+      SecretKey hmacKey) throws CryptorException;
 
   /**
    * Returns the version number of this {@code RNCryptor}.

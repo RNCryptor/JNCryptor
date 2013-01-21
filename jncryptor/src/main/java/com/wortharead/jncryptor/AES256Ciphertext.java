@@ -21,7 +21,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * Base class for RNCryptor-formatted data.
+ * Class for parsing and producing formatted ciphertext.
  */
 class AES256Ciphertext {
 
@@ -34,7 +34,6 @@ class AES256Ciphertext {
   static final int HMAC_SIZE = 32;
   static final int EXPECTED_VERSION = 1;
   static final int HEADER_SIZE = 2;
-  static final byte HAS_PASSWORD_OPTION = 0x01;
 
   static final int MINIMUM_LENGTH_WITH_PASSWORD = HEADER_SIZE
       + ENCRYPTION_SALT_LENGTH + HMAC_SALT_LENGTH + AES_BLOCK_SIZE + HMAC_SIZE;
@@ -42,14 +41,23 @@ class AES256Ciphertext {
   static final int MINIMUM_LENGTH_WITHOUT_PASSWORD = HEADER_SIZE
       + AES_BLOCK_SIZE + HMAC_SIZE;
 
-  private int version;
-  private byte options;
-  private byte[] encryptionSalt;
-  private byte[] hmacSalt;
-  private byte[] iv;
-  private byte[] ciphertext;
-  private byte[] hmac;
+  private final int version;
+  private final byte options;
+  private final byte[] encryptionSalt;
+  private final byte[] hmacSalt;
+  private final byte[] iv;
+  private final byte[] ciphertext;
+  private final byte[] hmac;
+  private final boolean isPasswordBased;
 
+  /**
+   * Parses binary data to create an {@code AES256Ciphertext}.
+   * 
+   * @param data
+   *          the data to parse
+   * @throws InvalidDataException
+   *           if the data is not valid
+   */
   AES256Ciphertext(byte[] data) throws InvalidDataException {
     Validate.notNull(data, "Data cannot be null.");
 
@@ -58,25 +66,47 @@ class AES256Ciphertext {
       throw new InvalidDataException("Not enough data to read header.");
     }
 
-    if (data.length < MINIMUM_LENGTH_WITH_PASSWORD) {
+    int index = 0;
+    version = data[index++];
+
+    if (version != EXPECTED_VERSION) {
       throw new InvalidDataException(String.format(
-          "Data must be a minimum length of %d bytes, but found %d bytes.",
-          MINIMUM_LENGTH_WITH_PASSWORD, data.length));
+          "Expected version %d but found %d.", EXPECTED_VERSION, version));
     }
 
-    int ciphertextLength = data.length - MINIMUM_LENGTH_WITH_PASSWORD;
-    int index = 0;
-
-    version = data[index++];
     options = data[index++];
 
-    encryptionSalt = new byte[ENCRYPTION_SALT_LENGTH];
-    System.arraycopy(data, index, encryptionSalt, 0, encryptionSalt.length);
-    index += encryptionSalt.length;
+    // Test for any invalid flags
+    if (options != 0x00 && options != FLAG_PASSWORD) {
+      throw new InvalidDataException("Unrecognised bit in the options byte.");
+    }
 
-    hmacSalt = new byte[HMAC_SALT_LENGTH];
-    System.arraycopy(data, index, hmacSalt, 0, hmacSalt.length);
-    index += hmacSalt.length;
+    // If the password bit is set, we can expect salt values
+    isPasswordBased = ((options & FLAG_PASSWORD) == FLAG_PASSWORD);
+
+    final int minimumLength = (isPasswordBased) ? MINIMUM_LENGTH_WITH_PASSWORD
+        : MINIMUM_LENGTH_WITHOUT_PASSWORD;
+
+    if (data.length < minimumLength) {
+      throw new InvalidDataException(String.format(
+          "Data must be a minimum length of %d bytes, but found %d bytes.",
+          minimumLength, data.length));
+    }
+
+    final int ciphertextLength = data.length - minimumLength;
+
+    if (isPasswordBased) {
+      encryptionSalt = new byte[ENCRYPTION_SALT_LENGTH];
+      System.arraycopy(data, index, encryptionSalt, 0, encryptionSalt.length);
+      index += encryptionSalt.length;
+
+      hmacSalt = new byte[HMAC_SALT_LENGTH];
+      System.arraycopy(data, index, hmacSalt, 0, hmacSalt.length);
+      index += hmacSalt.length;
+    } else {
+      encryptionSalt = null;
+      hmacSalt = null;
+    }
 
     iv = new byte[AES_BLOCK_SIZE];
     System.arraycopy(data, index, iv, 0, iv.length);
@@ -88,14 +118,14 @@ class AES256Ciphertext {
 
     hmac = new byte[HMAC_SIZE];
     System.arraycopy(data, index, hmac, 0, hmac.length);
-
-    validateData();
   }
 
   /**
    * Constructs a {@code CryptorData} from its constituent parts. An
    * {@code IllegalArgumentException} is thrown if any of the parameters are of
    * the wrong length or invalid.
+   * <p>
+   * This constructor is used if the data was encrypted with a password.
    * 
    * @param encryptionSalt
    *          the encryption salt
@@ -110,41 +140,50 @@ class AES256Ciphertext {
    */
   AES256Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
       byte[] ciphertext, byte[] hmac) {
-    this.version = EXPECTED_VERSION;
-    this.options = HAS_PASSWORD_OPTION;
-    this.encryptionSalt = encryptionSalt;
-    this.hmacSalt = hmacSalt;
-    this.iv = iv;
-    this.ciphertext = ciphertext;
-    this.hmac = hmac;
-
-    try {
-      validateData();
-    } catch (InvalidDataException e) {
-      throw new IllegalArgumentException(e.getMessage());
-    }
-  }
-
-  /**
-   * Validates the data.
-   * 
-   * @throws InvalidDataException
-   *           if the data is invalid
-   */
-  private void validateData() throws InvalidDataException {
-    if (version != EXPECTED_VERSION) {
-      throw new InvalidDataException(String.format(
-          "Expected version %d but found %d.", EXPECTED_VERSION, version));
-    }
-
-    if (options != HAS_PASSWORD_OPTION) {
-      throw new InvalidDataException("Options byte should be 0x01.");
-    }
 
     validateLength(encryptionSalt, "encryption salt", ENCRYPTION_SALT_LENGTH);
     validateLength(hmacSalt, "HMAC salt", HMAC_SALT_LENGTH);
     validateLength(iv, "IV", AES_BLOCK_SIZE);
     validateLength(hmac, "HMAC", HMAC_SIZE);
+
+    this.version = EXPECTED_VERSION;
+    this.options = FLAG_PASSWORD;
+    this.encryptionSalt = encryptionSalt;
+    this.hmacSalt = hmacSalt;
+    this.iv = iv;
+    this.ciphertext = ciphertext;
+    this.hmac = hmac;
+    this.isPasswordBased = true;
+  }
+
+  /**
+   * Constructs a {@code CryptorData} from its constituent parts. An
+   * {@code IllegalArgumentException} is thrown if any of the parameters are of
+   * the wrong length or invalid.
+   * <p>
+   * This constructor is used if the data was encrypted with a key.
+   * 
+   * @param iv
+   *          the initialisation value
+   * @param ciphertext
+   *          the encrypted data
+   * @param hmac
+   *          the HMAC value
+   */
+  AES256Ciphertext(byte[] iv, byte[] ciphertext, byte[] hmac) {
+
+    validateLength(iv, "IV", AES_BLOCK_SIZE);
+    validateLength(hmac, "HMAC", HMAC_SIZE);
+
+    this.version = EXPECTED_VERSION;
+    this.options = 0;
+    this.iv = iv;
+    this.ciphertext = ciphertext;
+    this.hmac = hmac;
+
+    this.encryptionSalt = null;
+    this.hmacSalt = null;
+    this.isPasswordBased = false;
   }
 
   /**
@@ -156,13 +195,13 @@ class AES256Ciphertext {
    *          the name of the field (to include in the exception)
    * @param expectedLength
    *          the length the data should be
-   * @throws InvalidDataException
+   * @throws IllegalArgumentException
    *           if the data is not of the correct length
    */
   private static void validateLength(byte[] data, String dataName,
-      int expectedLength) throws InvalidDataException {
+      int expectedLength) throws IllegalArgumentException {
     if (data.length != expectedLength) {
-      throw new InvalidDataException(String.format(
+      throw new IllegalArgumentException(String.format(
           "Invalid %s length. Expected %d bytes but found %d.", dataName,
           expectedLength, data.length));
     }
@@ -175,18 +214,34 @@ class AES256Ciphertext {
    */
   byte[] getRawData() {
 
-    // Header: [Version = 0x01 | Options = 0x00]
-    byte[] header = new byte[] { EXPECTED_VERSION, HAS_PASSWORD_OPTION };
+    // Header: [Version | Options]
+    byte[] header = new byte[] { EXPECTED_VERSION, 0 };
+
+    if (isPasswordBased) {
+      header[1] |= FLAG_PASSWORD;
+    }
 
     // Pack result
-    byte[] result = new byte[header.length + encryptionSalt.length
-        + hmacSalt.length + iv.length + ciphertext.length + hmac.length];
+    final int dataSize;
+
+    if (isPasswordBased) {
+      dataSize = header.length + encryptionSalt.length + hmacSalt.length
+          + iv.length + ciphertext.length + hmac.length;
+    } else {
+      dataSize = header.length + iv.length + ciphertext.length + hmac.length;
+    }
+
+    byte[] result = new byte[dataSize];
 
     System.arraycopy(header, 0, result, 0, header.length);
-    System.arraycopy(encryptionSalt, 0, result, header.length,
-        encryptionSalt.length);
-    System.arraycopy(hmacSalt, 0, result,
-        header.length + encryptionSalt.length, hmacSalt.length);
+
+    if (isPasswordBased) {
+      System.arraycopy(encryptionSalt, 0, result, header.length,
+          encryptionSalt.length);
+      System.arraycopy(hmacSalt, 0, result, header.length
+          + encryptionSalt.length, hmacSalt.length);
+    }
+
     System.arraycopy(iv, 0, result, header.length + encryptionSalt.length
         + hmacSalt.length, iv.length);
     System.arraycopy(ciphertext, 0, result, header.length
@@ -256,5 +311,16 @@ class AES256Ciphertext {
   @Override
   public boolean equals(Object obj) {
     return EqualsBuilder.reflectionEquals(this, obj, false);
+  }
+
+  /**
+   * Indicates if the ciphertext was created using a password. If so, then the
+   * salt values will be present in the ciphertext.
+   * 
+   * @return <code>true</code> if the ciphertext was created with a password
+   *         (not a key), <code>false</code> otherwise
+   */
+  public boolean isPasswordBased() {
+    return isPasswordBased;
   }
 }
