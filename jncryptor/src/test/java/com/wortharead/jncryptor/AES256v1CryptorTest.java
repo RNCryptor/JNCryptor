@@ -15,8 +15,13 @@
 
 package com.wortharead.jncryptor;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Random;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.Charsets;
@@ -27,6 +32,8 @@ import org.junit.Test;
  * 
  */
 public class AES256v1CryptorTest {
+
+  private static final Random RANDOM = new Random();
 
   /**
    * Performs a simple round-trip encryption and decryption.
@@ -122,5 +129,74 @@ public class AES256v1CryptorTest {
   @Test(expected = NullPointerException.class)
   public void testNullPlaintextInEncrypt() throws Exception {
     new AES256v1Cryptor().encryptData(null, "blah".toCharArray());
+  }
+
+  /**
+   * Performs an encryption followed by a decryption and confirms the data is
+   * the same. Uses the key-based methods.
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testKeyBasedEncryptionAndDecryption() throws Exception {
+    SecretKey encryptionKey = makeRandomAESKey();
+    SecretKey hmacKey = makeRandomAESKey();
+
+    final byte[] plaintext = "Hello, World!".getBytes();
+
+    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
+    byte[] newPlaintext = cryptor.decryptData(ciphertext, encryptionKey,
+        hmacKey);
+    assertArrayEquals(plaintext, newPlaintext);
+  }
+  
+  
+  private static SecretKey makeRandomAESKey() {
+    byte[] keyBytes = new byte[16];
+    RANDOM.nextBytes(keyBytes);
+
+    return new SecretKeySpec(keyBytes, "AES");
+  }
+  
+
+  /**
+   * Checks an exception is thrown when a bad salt length is suggested.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadSaltLengthForKey() throws Exception {
+    new AES256v1Cryptor().keyForPassword(null,
+        new byte[AES256v1Cryptor.SALT_LENGTH + 1]);
+  }
+
+  /**
+   * Tests we return the correct version number.
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testVersionNumber() throws Exception {
+    assertEquals(1, new AES256v1Cryptor().getVersionNumber());
+  }
+
+  /**
+   * Tests we get an exception if we try to decrypt a key-based ciphertext with
+   * a password.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void testDecryptionMismatch() throws Exception {
+    SecretKey encryptionKey = makeRandomAESKey();
+    SecretKey hmacKey = makeRandomAESKey();
+
+    final byte[] plaintext = "Hello, World!".getBytes();
+
+    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
+    
+    cryptor.decryptData(ciphertext, "whoops!".toCharArray());
   }
 }

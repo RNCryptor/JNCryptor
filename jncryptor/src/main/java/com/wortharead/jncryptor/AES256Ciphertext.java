@@ -240,15 +240,20 @@ class AES256Ciphertext {
           encryptionSalt.length);
       System.arraycopy(hmacSalt, 0, result, header.length
           + encryptionSalt.length, hmacSalt.length);
+      System.arraycopy(iv, 0, result, header.length + encryptionSalt.length
+          + hmacSalt.length, iv.length);
+      System.arraycopy(ciphertext, 0, result, header.length
+          + encryptionSalt.length + hmacSalt.length + iv.length,
+          ciphertext.length);
+      System.arraycopy(hmac, 0, result, header.length + encryptionSalt.length
+          + hmacSalt.length + iv.length + ciphertext.length, hmac.length);
+    } else {
+      System.arraycopy(iv, 0, result, header.length, iv.length);
+      System.arraycopy(ciphertext, 0, result, header.length + iv.length,
+          ciphertext.length);
+      System.arraycopy(hmac, 0, result, header.length + iv.length
+          + ciphertext.length, hmac.length);
     }
-
-    System.arraycopy(iv, 0, result, header.length + encryptionSalt.length
-        + hmacSalt.length, iv.length);
-    System.arraycopy(ciphertext, 0, result, header.length
-        + encryptionSalt.length + hmacSalt.length + iv.length,
-        ciphertext.length);
-    System.arraycopy(hmac, 0, result, header.length + encryptionSalt.length
-        + hmacSalt.length + iv.length + ciphertext.length, hmac.length);
 
     return result;
   }

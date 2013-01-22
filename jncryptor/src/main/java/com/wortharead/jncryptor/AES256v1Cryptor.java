@@ -79,7 +79,9 @@ public class AES256v1Cryptor implements JNCryptor {
   private static final int VERSION = 1;
   private static final int AES_256_KEY_SIZE = 256 / 8;
   private static final int AES_BLOCK_SIZE = 16;
-  private static final int SALT_LENGTH = 8;
+
+  // Salt length exposed as package private to aid unit testing
+  static final int SALT_LENGTH = 8;
 
   // SecureRandom is threadsafe
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -164,7 +166,7 @@ public class AES256v1Cryptor implements JNCryptor {
       AES256Ciphertext aesCiphertext = new AES256Ciphertext(ciphertext);
 
       if (!aesCiphertext.isPasswordBased()) {
-        throw new CryptorException(
+        throw new IllegalArgumentException(
             "Ciphertext was not encrypted with a password.");
       }
 
@@ -240,8 +242,6 @@ public class AES256v1Cryptor implements JNCryptor {
    * @return random bytes
    */
   private static byte[] getSecureRandomData(int length) {
-    Validate.isTrue(length > 0, "Length must be positive.");
-
     byte[] result = new byte[length];
     SECURE_RANDOM.nextBytes(result);
     return result;
