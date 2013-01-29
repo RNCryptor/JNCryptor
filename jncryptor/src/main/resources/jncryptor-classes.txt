@@ -1,1 +1,1 @@
-com.wortharead.jncryptor.AES256v2Cryptor
+org.cryptonode.jncryptor.AES256v2Cryptor

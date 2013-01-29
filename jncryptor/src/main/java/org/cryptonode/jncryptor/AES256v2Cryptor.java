@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor;
+package org.cryptonode.jncryptor;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -63,11 +63,9 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * The HMAC is calculated across all the data (except the HMAC itself, of
  * course), generated using the HMAC key described above and the SHA-256 PRF.
- * 
- * 
- * @see <a
- *      href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
- *      , from which most of the information above was shamelessly copied
+ * <p> 
+ * See <a href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>, 
+ * from which most of the information above was shamelessly copied.
  */
 public class AES256v2Cryptor implements JNCryptor {
 

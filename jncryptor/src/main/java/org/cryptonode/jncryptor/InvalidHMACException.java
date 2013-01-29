@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor;
+package org.cryptonode.jncryptor;
 
 /**
  * An {@code InvalidHMACException} is thrown when the HMAC value is incorrect,

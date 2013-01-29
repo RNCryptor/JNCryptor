@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor;
+package org.cryptonode.jncryptor;
 
 /**
- * An exception thrown when invalid data is encountered.
+ * An exception thrown when an error occurs encrypting or decrypting.
  */
-class InvalidDataException extends Exception {
+public class CryptorException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new exception.
    */
-  public InvalidDataException() {
+  public CryptorException() {
   }
 
   /**
@@ -34,7 +34,7 @@ class InvalidDataException extends Exception {
    * @param message
    *          error message
    */
-  public InvalidDataException(String message) {
+  public CryptorException(String message) {
     super(message);
   }
 
@@ -44,7 +44,7 @@ class InvalidDataException extends Exception {
    * @param cause
    *          the cause of the exception
    */
-  public InvalidDataException(Throwable cause) {
+  public CryptorException(Throwable cause) {
     super(cause);
   }
 
@@ -56,7 +56,7 @@ class InvalidDataException extends Exception {
    * @param cause
    *          the cause of the exception
    */
-  public InvalidDataException(String message, Throwable cause) {
-    super(message, cause);   
+  public CryptorException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

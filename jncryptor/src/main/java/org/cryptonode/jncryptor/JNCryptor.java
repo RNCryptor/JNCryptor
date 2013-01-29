@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor;
+package org.cryptonode.jncryptor;
 
 import javax.crypto.SecretKey;
 
@@ -26,9 +26,9 @@ import javax.crypto.SecretKey;
  * An {@code JNCryptor} must be threadsafe, as a single instance will be
  * returned from the {@code JNCryptorFactory} and potentially shared between
  * threads.
- * 
- * @see https://github.com/rnapier/RNCryptor for details on the original
- *      implementation in objective-c
+ * <p>
+ * See <a href="https://github.com/rnapier/RNCryptor">https://github.com/rnapier/RNCryptor</a> 
+ * for details on the original implementation in objective-c
  */
 public interface JNCryptor {
 

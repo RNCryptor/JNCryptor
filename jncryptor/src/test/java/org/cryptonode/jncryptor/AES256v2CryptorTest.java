@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.wortharead.jncryptor;
+package org.cryptonode.jncryptor;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,9 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.Charsets;
+import org.cryptonode.jncryptor.AES256v2Cryptor;
+import org.cryptonode.jncryptor.CryptorException;
+import org.cryptonode.jncryptor.InvalidHMACException;
 import org.junit.Assert;
 import org.junit.Test;
 
