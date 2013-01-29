@@ -26,9 +26,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-import com.wortharead.jncryptor.JNCryptor;
-import com.wortharead.jncryptor.JNCryptorFactory;
-
 /**
  * 
  */
@@ -42,7 +39,7 @@ public class JNCryptorFactoryTest {
    */
   @Test
   public void testGetCorrectVersion() throws Exception {
-    final int version = 1;
+    final int version = 2;
     JNCryptor cryptor = JNCryptorFactory.getCryptor(version);
     assertEquals(version, cryptor.getVersionNumber());
   }

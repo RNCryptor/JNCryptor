@@ -15,6 +15,8 @@
 
 package com.wortharead.jncryptor;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -23,7 +25,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * Class for parsing and producing formatted ciphertext.
  */
-class AES256Ciphertext {
+class AES256v2Ciphertext {
 
   // Values are default protection to share with unit
   // tests
@@ -32,7 +34,7 @@ class AES256Ciphertext {
   static final int HMAC_SALT_LENGTH = 8;
   static final int AES_BLOCK_SIZE = 16;
   static final int HMAC_SIZE = 32;
-  static final int EXPECTED_VERSION = 1;
+  static final int EXPECTED_VERSION = 2;
   static final int HEADER_SIZE = 2;
 
   static final int MINIMUM_LENGTH_WITH_PASSWORD = HEADER_SIZE
@@ -47,7 +49,8 @@ class AES256Ciphertext {
   private final byte[] hmacSalt;
   private final byte[] iv;
   private final byte[] ciphertext;
-  private final byte[] hmac;
+  private byte[] hmac;
+
   private final boolean isPasswordBased;
 
   /**
@@ -58,7 +61,7 @@ class AES256Ciphertext {
    * @throws InvalidDataException
    *           if the data is not valid
    */
-  AES256Ciphertext(byte[] data) throws InvalidDataException {
+  AES256v2Ciphertext(byte[] data) throws InvalidDataException {
     Validate.notNull(data, "Data cannot be null.");
 
     // Need the header to be able to determine the length
@@ -135,16 +138,13 @@ class AES256Ciphertext {
    *          the initialisation value
    * @param ciphertext
    *          the encrypted data
-   * @param hmac
-   *          the HMAC value
    */
-  AES256Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
-      byte[] ciphertext, byte[] hmac) {
+  AES256v2Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
+      byte[] ciphertext) {
 
     validateLength(encryptionSalt, "encryption salt", ENCRYPTION_SALT_LENGTH);
     validateLength(hmacSalt, "HMAC salt", HMAC_SALT_LENGTH);
     validateLength(iv, "IV", AES_BLOCK_SIZE);
-    validateLength(hmac, "HMAC", HMAC_SIZE);
 
     this.version = EXPECTED_VERSION;
     this.options = FLAG_PASSWORD;
@@ -152,8 +152,10 @@ class AES256Ciphertext {
     this.hmacSalt = hmacSalt;
     this.iv = iv;
     this.ciphertext = ciphertext;
-    this.hmac = hmac;
     this.isPasswordBased = true;
+
+    // HMAC will be set later
+    hmac = new byte[HMAC_SIZE];
   }
 
   /**
@@ -167,23 +169,22 @@ class AES256Ciphertext {
    *          the initialisation value
    * @param ciphertext
    *          the encrypted data
-   * @param hmac
-   *          the HMAC value
    */
-  AES256Ciphertext(byte[] iv, byte[] ciphertext, byte[] hmac) {
+  AES256v2Ciphertext(byte[] iv, byte[] ciphertext) {
 
     validateLength(iv, "IV", AES_BLOCK_SIZE);
-    validateLength(hmac, "HMAC", HMAC_SIZE);
 
     this.version = EXPECTED_VERSION;
     this.options = 0;
     this.iv = iv;
     this.ciphertext = ciphertext;
-    this.hmac = hmac;
 
     this.encryptionSalt = null;
     this.hmacSalt = null;
     this.isPasswordBased = false;
+
+    // HMAC will be set later
+    hmac = new byte[HMAC_SIZE];
   }
 
   /**
@@ -259,6 +260,14 @@ class AES256Ciphertext {
   }
 
   /**
+   * @return the data to compute the HMAC over
+   */
+  byte[] getDataToHMAC() {
+    byte[] rawData = getRawData();
+    return Arrays.copyOf(rawData, rawData.length - HMAC_SIZE);
+  }
+
+  /**
    * @return the version
    */
   int getVersion() {
@@ -327,5 +336,13 @@ class AES256Ciphertext {
    */
   public boolean isPasswordBased() {
     return isPasswordBased;
+  }
+
+  /**
+   * @param hmac
+   *          the hmac to set
+   */
+  void setHmac(byte[] hmac) {
+    this.hmac = hmac;
   }
 }

@@ -31,7 +31,7 @@ import org.junit.Test;
 /**
  * 
  */
-public class AES256v1CryptorTest {
+public class AES256v2CryptorTest {
 
   private static final Random RANDOM = new Random();
 
@@ -45,7 +45,7 @@ public class AES256v1CryptorTest {
     String password = "1234";
     byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
     byte[] plaintext2 = cryptor.decryptData(ciphertext, password.toCharArray());
     Assert.assertArrayEquals(plaintext, plaintext2);
@@ -62,7 +62,7 @@ public class AES256v1CryptorTest {
     String password = "1234";
     byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
 
     // Change one byte in the HMAC
@@ -79,7 +79,7 @@ public class AES256v1CryptorTest {
   @Test(expected = CryptorException.class)
   public void testBadInput() throws Exception {
     final byte[] nonsenseData = new byte[] { 0x45, 0x55 };
-    new AES256v1Cryptor().decryptData(nonsenseData, "blah".toCharArray());
+    new AES256v2Cryptor().decryptData(nonsenseData, "blah".toCharArray());
   }
 
   /**
@@ -93,21 +93,36 @@ public class AES256v1CryptorTest {
     final String expectedPlaintextString = "Hello, World! Let's use a few blocks "
         + "with a longer sentence.";
 
-    // This known value has been confirmed with Rob Napier
-    String knownCiphertext = "0101EF297BCD83B68AF69FC4B7040A0E5EB9F349EFAF051030748FD1"
-        + "9AAA4362E9D6F4FCADC4EFDBC3EBA1B6251BA8ADAC668425523887BAA3334A01F4450A4BF6F80CA3"
-        + "FFED1408D7EB7DE0254665EC387C43D5AEE0ADFF9CB7A9E939E196E071ACBC4A1E7E09F15502D937"
-        + "9D307F66C4A0D22FE8731E3A69872355BD38C7967355";
+    // TODO confirm this with Rob Napier
+    String knownCiphertext = "02013F194AA9969CF70C8ACB76824DE4CB6CDCF78B7449A87C679FB8EDB6" +
+    		"A0109C513481DE877F3A855A184C4947F2B3E8FEF7E916E4739F9F889A717FCAF277402866341008A" +
+    		"09FD3EBAC7FA26C969DD7EE72CFB695547C971A75D8BF1CC5980E0C727BD9F97F6B7489F687813BEB" +
+    		"94DEB61031260C246B9B0A78C2A52017AA8C92";
 
     byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
 
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
     byte[] plaintext = cryptor.decryptData(ciphertext, password.toCharArray());
 
     String plaintextString = new String(plaintext, Charsets.UTF_8);
 
     assertEquals(expectedPlaintextString, plaintextString);
   }
+
+  // @Test
+  // public void makeKnownCiphertext() throws Exception {
+  // final String password = "P@ssw0rd!";
+  // final String plaintextString = "Hello, World! Let's use a few blocks "
+  // + "with a longer sentence.";
+  //
+  // final byte[] plaintext = plaintextString.getBytes("US-ASCII");
+  //
+  // AES256v2Cryptor cryptor = new AES256v2Cryptor();
+  // byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
+  //
+  // System.out.println(DatatypeConverter.printHexBinary(plaintext));
+  // System.out.println(DatatypeConverter.printHexBinary(ciphertext));
+  // }
 
   /**
    * Tests a {@link NullPointerException} is thrown when the ciphertext is null
@@ -117,7 +132,7 @@ public class AES256v1CryptorTest {
    */
   @Test(expected = NullPointerException.class)
   public void testNullCiphertextInDecrypt() throws Exception {
-    new AES256v1Cryptor().decryptData(null, "blah".toCharArray());
+    new AES256v2Cryptor().decryptData(null, "blah".toCharArray());
   }
 
   /**
@@ -128,7 +143,7 @@ public class AES256v1CryptorTest {
    */
   @Test(expected = NullPointerException.class)
   public void testNullPlaintextInEncrypt() throws Exception {
-    new AES256v1Cryptor().encryptData(null, "blah".toCharArray());
+    new AES256v2Cryptor().encryptData(null, "blah".toCharArray());
   }
 
   /**
@@ -144,21 +159,19 @@ public class AES256v1CryptorTest {
 
     final byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
     byte[] newPlaintext = cryptor.decryptData(ciphertext, encryptionKey,
         hmacKey);
     assertArrayEquals(plaintext, newPlaintext);
   }
-  
-  
+
   private static SecretKey makeRandomAESKey() {
     byte[] keyBytes = new byte[16];
     RANDOM.nextBytes(keyBytes);
 
     return new SecretKeySpec(keyBytes, "AES");
   }
-  
 
   /**
    * Checks an exception is thrown when a bad salt length is suggested.
@@ -167,8 +180,8 @@ public class AES256v1CryptorTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void testBadSaltLengthForKey() throws Exception {
-    new AES256v1Cryptor().keyForPassword(null,
-        new byte[AES256v1Cryptor.SALT_LENGTH + 1]);
+    new AES256v2Cryptor().keyForPassword(null,
+        new byte[AES256v2Cryptor.SALT_LENGTH + 1]);
   }
 
   /**
@@ -178,7 +191,7 @@ public class AES256v1CryptorTest {
    */
   @Test
   public void testVersionNumber() throws Exception {
-    assertEquals(1, new AES256v1Cryptor().getVersionNumber());
+    assertEquals(2, new AES256v2Cryptor().getVersionNumber());
   }
 
   /**
@@ -194,9 +207,9 @@ public class AES256v1CryptorTest {
 
     final byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v1Cryptor cryptor = new AES256v1Cryptor();
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
-    
+
     cryptor.decryptData(ciphertext, "whoops!".toCharArray());
   }
 }

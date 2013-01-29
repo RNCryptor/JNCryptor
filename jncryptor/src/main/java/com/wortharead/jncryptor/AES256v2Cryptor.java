@@ -30,7 +30,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.Validate;
 
 /**
- * This {@link JNCryptor} instance produces data in version 1 format.
+ * This {@link JNCryptor} instance produces data in version 2 format.
  * <p>
  * 
  * <pre>
@@ -39,9 +39,9 @@ import org.apache.commons.lang3.Validate;
  * </pre>
  * 
  * <ul>
- * <li><b>version</b> (1 byte): Data format version. Always {@code 0x01}.</li>
- * <li><b>options</b> (1 byte): Always {@code 0x01}, to indicate that a password
- * is used.</li>
+ * <li><b>version</b> (1 byte): Data format version. Always {@code 0x02}.</li>
+ * <li><b>options</b> (1 byte): {@code 0x00} if keys are used, {@code 0x01} if a
+ * password is used.</li>
  * <li><b>encryption salt</b> (8 bytes)</li>
  * <li><b>HMAC salt</b> (8 bytes)</li>
  * <li><b>IV</b> (16 bytes)</li>
@@ -61,22 +61,22 @@ import org.apache.commons.lang3.Validate;
  * The ciphertext is AES-256-CBC encrypted, using a randomly generated IV and
  * the encryption key (described above), with PKCS&nbsp;#5 padding.
  * <p>
- * The HMAC is generated using the ciphertext and the HMAC key (described above)
- * and the SHA-256 PRF.
+ * The HMAC is calculated across all the data (except the HMAC itself, of
+ * course), generated using the HMAC key described above and the SHA-256 PRF.
  * 
  * 
  * @see <a
  *      href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
  *      , from which most of the information above was shamelessly copied
  */
-public class AES256v1Cryptor implements JNCryptor {
+public class AES256v2Cryptor implements JNCryptor {
 
   private static final String AES_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
   private static final String HMAC_ALGORITHM = "HmacSHA256";
   private static final String AES_NAME = "AES";
   private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
   private static final int PBKDF_ITERATIONS = 10000;
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
   private static final int AES_256_KEY_SIZE = 256 / 8;
   private static final int AES_BLOCK_SIZE = 16;
 
@@ -88,14 +88,14 @@ public class AES256v1Cryptor implements JNCryptor {
 
   static {
     // Register this class with the factory
-    JNCryptorFactory.registerCryptor(VERSION, new AES256v1Cryptor());
+    JNCryptorFactory.registerCryptor(VERSION, new AES256v2Cryptor());
   }
 
   /**
    * This class should be accessed only via
    * {@link JNCryptorFactory#getCryptor()}, except for unit testing.
    */
-  AES256v1Cryptor() {
+  AES256v2Cryptor() {
   }
 
   @Override
@@ -122,12 +122,8 @@ public class AES256v1Cryptor implements JNCryptor {
   /**
    * Decrypts data.
    * 
-   * @param trimmedCiphertext
+   * @param aesCiphertext
    *          the ciphertext from the message
-   * @param iv
-   *          the IV
-   * @param hmac
-   *          the HMAC value from the message
    * @param decryptionKey
    *          the key to decrypt
    * @param hmacKey
@@ -136,22 +132,23 @@ public class AES256v1Cryptor implements JNCryptor {
    * @throws CryptorException
    *           if a JCE error occurs
    */
-  private byte[] decryptData(byte[] trimmedCiphertext, byte[] iv, byte[] hmac,
+  private byte[] decryptData(AES256v2Ciphertext aesCiphertext,
       SecretKey decryptionKey, SecretKey hmacKey) throws CryptorException {
 
     try {
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
       mac.init(hmacKey);
-      byte[] hmacValue = mac.doFinal(trimmedCiphertext);
+      byte[] hmacValue = mac.doFinal(aesCiphertext.getDataToHMAC());
 
-      if (!Arrays.equals(hmacValue, hmac)) {
+      if (!Arrays.equals(hmacValue, aesCiphertext.getHmac())) {
         throw new InvalidHMACException("Incorrect HMAC value.");
       }
 
       Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
-      cipher.init(Cipher.DECRYPT_MODE, decryptionKey, new IvParameterSpec(iv));
+      cipher.init(Cipher.DECRYPT_MODE, decryptionKey, new IvParameterSpec(
+          aesCiphertext.getIv()));
 
-      return cipher.doFinal(trimmedCiphertext);
+      return cipher.doFinal(aesCiphertext.getCiphertext());
     } catch (GeneralSecurityException e) {
       throw new CryptorException("Failed to decrypt message.", e);
     }
@@ -163,7 +160,7 @@ public class AES256v1Cryptor implements JNCryptor {
     Validate.notNull(ciphertext, "Ciphertext cannot be null.");
 
     try {
-      AES256Ciphertext aesCiphertext = new AES256Ciphertext(ciphertext);
+      AES256v2Ciphertext aesCiphertext = new AES256v2Ciphertext(ciphertext);
 
       if (!aesCiphertext.isPasswordBased()) {
         throw new IllegalArgumentException(
@@ -174,8 +171,7 @@ public class AES256v1Cryptor implements JNCryptor {
           aesCiphertext.getEncryptionSalt());
       SecretKey hmacKey = keyForPassword(password, aesCiphertext.getHmacSalt());
 
-      return decryptData(aesCiphertext.getCiphertext(), aesCiphertext.getIv(),
-          aesCiphertext.getHmac(), decryptionKey, hmacKey);
+      return decryptData(aesCiphertext, decryptionKey, hmacKey);
     } catch (InvalidDataException e) {
       throw new CryptorException("Unable to parse ciphertext.", e);
     }
@@ -209,12 +205,13 @@ public class AES256v1Cryptor implements JNCryptor {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
       byte[] ciphertext = cipher.doFinal(plaintext);
 
+      AES256v2Ciphertext output = new AES256v2Ciphertext(encryptionSalt, hmacSalt,
+          iv, ciphertext);
+
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
       mac.init(hmacKey);
-      byte[] hmac = mac.doFinal(ciphertext);
-
-      AES256Ciphertext output = new AES256Ciphertext(encryptionSalt, hmacSalt,
-          iv, ciphertext, hmac);
+      byte[] hmac = mac.doFinal(output.getDataToHMAC());
+      output.setHmac(hmac);
       return output.getRawData();
 
     } catch (GeneralSecurityException e) {
@@ -260,12 +257,11 @@ public class AES256v1Cryptor implements JNCryptor {
     Validate.notNull(decryptionKey, "Decryption key cannot be null.");
     Validate.notNull(hmacKey, "HMAC key cannot be null.");
 
-    AES256Ciphertext aesCiphertext;
+    AES256v2Ciphertext aesCiphertext;
     try {
-      aesCiphertext = new AES256Ciphertext(ciphertext);
+      aesCiphertext = new AES256v2Ciphertext(ciphertext);
 
-      return decryptData(aesCiphertext.getCiphertext(), aesCiphertext.getIv(),
-          aesCiphertext.getHmac(), decryptionKey, hmacKey);
+      return decryptData(aesCiphertext, decryptionKey, hmacKey);
 
     } catch (InvalidDataException e) {
       throw new CryptorException("Unable to parse ciphertext.", e);
@@ -287,11 +283,12 @@ public class AES256v1Cryptor implements JNCryptor {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
       byte[] ciphertext = cipher.doFinal(plaintext);
 
+      AES256v2Ciphertext output = new AES256v2Ciphertext(iv, ciphertext);
+
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
       mac.init(hmacKey);
-      byte[] hmac = mac.doFinal(ciphertext);
-
-      AES256Ciphertext output = new AES256Ciphertext(iv, ciphertext, hmac);
+      byte[] hmac = mac.doFinal(output.getDataToHMAC());
+      output.setHmac(hmac);
       return output.getRawData();
 
     } catch (GeneralSecurityException e) {
