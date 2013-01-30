@@ -9,7 +9,7 @@
 
   <groupId>org.cryptonode.jncryptor</groupId>
   <artifactId>jncryptor</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <packaging>jar</packaging>
 
   <name>jncryptor</name>
@@ -21,9 +21,9 @@
   </issueManagement>
 
   <scm>
-    <developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/trunk/jncryptor</developerConnection>
-    <connection>scm:svn:http://jncryptor.googlecode.com/svn/trunk/jncryptor/</connection>
-    <url>http://jncryptor.googlecode.com/svn/trunk/jncryptor/</url>
+    <developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/tags/jncryptor-0.1</developerConnection>
+    <connection>scm:svn:http://jncryptor.googlecode.com/svn/tags/jncryptor-0.1</connection>
+    <url>http://jncryptor.googlecode.com/svn/tags/jncryptor-0.1</url>
   </scm>
 
   <developers>
