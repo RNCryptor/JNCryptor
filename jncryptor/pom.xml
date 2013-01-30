@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
 
   <name>jncryptor</name>
-  <description>JNCryptor is a Java port of Rob Napier's RNCryptor library for iOS.</description>
+  <description>A Java library that simplifies encrypting data securely with AES.</description>
 
   <url>http://cryptonode.org/jncryptor/</url>
   <issueManagement>
@@ -22,8 +22,8 @@
   </issueManagement>
 
   <scm>
-    <developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/trunk/</developerConnection>
-    <connection>scm:svn:http://jncryptor.googlecode.com/svn/trunk/</connection>
+    <developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/trunk/jncryptor</developerConnection>
+    <connection>scm:svn:http://jncryptor.googlecode.com/svn/trunk/jncryptor/</connection>
     <url>http://jncryptor.googlecode.com/svn/trunk/</url>
   </scm>
 
