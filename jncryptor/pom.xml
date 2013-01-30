@@ -24,7 +24,7 @@
   <scm>
     <developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/trunk/jncryptor</developerConnection>
     <connection>scm:svn:http://jncryptor.googlecode.com/svn/trunk/jncryptor/</connection>
-    <url>http://jncryptor.googlecode.com/svn/trunk/</url>
+    <url>http://jncryptor.googlecode.com/svn/trunk/jncryptor/</url>
   </scm>
 
   <developers>
