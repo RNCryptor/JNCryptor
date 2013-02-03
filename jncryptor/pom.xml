@@ -9,7 +9,7 @@
 
   <groupId>org.cryptonode.jncryptor</groupId>
   <artifactId>jncryptor</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>jncryptor</name>
