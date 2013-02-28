@@ -15,15 +15,14 @@
 
 package org.cryptonode.jncryptor;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * available for each version of the original RNCryptor library. The most modern
  * implementation is always available by calling:
  * <p>
+ * 
  * <pre>
  * RNCryptor cryptor = RNCryptorFactory.getCryptor();
  * </pre>
@@ -55,18 +55,21 @@ public class JNCryptorFactory {
   static {
     // Load classes defined in properties file
     try {
-      URL fileURL = JNCryptorFactory.class
-          .getResource("/jncryptor-classes.txt");
+      InputStream in = JNCryptorFactory.class
+          .getResourceAsStream("/jncryptor-classes.txt");
 
-      if (fileURL == null) {
+      if (in == null) {
         throw new IOException("Unable to read class list file.");
       }
 
-      List<String> listOfClasses = FileUtils.readLines(new File(fileURL
-          .getPath()));
-      for (String className : listOfClasses) {
-        Class.forName(className);
-        LOGGER.debug("Loaded class {}.", className);
+      try {
+        List<String> listOfClasses = IOUtils.readLines(in);
+        for (String className : listOfClasses) {
+          Class.forName(className);
+          LOGGER.debug("Loaded class {}.", className);
+        }
+      } finally {
+        in.close();
       }
 
     } catch (IOException e) {
