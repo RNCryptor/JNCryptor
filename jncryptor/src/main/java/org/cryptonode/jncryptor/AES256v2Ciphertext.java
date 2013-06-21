@@ -15,8 +15,6 @@
 
 package org.cryptonode.jncryptor;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -264,7 +262,9 @@ class AES256v2Ciphertext {
    */
   byte[] getDataToHMAC() {
     byte[] rawData = getRawData();
-    return Arrays.copyOf(rawData, rawData.length - HMAC_SIZE);
+    byte[] result = new byte[rawData.length - HMAC_SIZE];
+    System.arraycopy(rawData, 0, result, 0, result.length);
+    return result;
   }
 
   /**
