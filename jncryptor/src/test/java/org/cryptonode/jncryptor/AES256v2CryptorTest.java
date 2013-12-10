@@ -25,9 +25,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.Charsets;
-import org.cryptonode.jncryptor.AES256v2Cryptor;
-import org.cryptonode.jncryptor.CryptorException;
-import org.cryptonode.jncryptor.InvalidHMACException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -96,11 +93,10 @@ public class AES256v2CryptorTest {
     final String expectedPlaintextString = "Hello, World! Let's use a few blocks "
         + "with a longer sentence.";
 
-    // TODO confirm this with Rob Napier
-    String knownCiphertext = "02013F194AA9969CF70C8ACB76824DE4CB6CDCF78B7449A87C679FB8EDB6" +
-    		"A0109C513481DE877F3A855A184C4947F2B3E8FEF7E916E4739F9F889A717FCAF277402866341008A" +
-    		"09FD3EBAC7FA26C969DD7EE72CFB695547C971A75D8BF1CC5980E0C727BD9F97F6B7489F687813BEB" +
-    		"94DEB61031260C246B9B0A78C2A52017AA8C92";
+    String knownCiphertext = "02013F194AA9969CF70C8ACB76824DE4CB6CDCF78B7449A87C679FB8EDB6"
+        + "A0109C513481DE877F3A855A184C4947F2B3E8FEF7E916E4739F9F889A717FCAF277402866341008A"
+        + "09FD3EBAC7FA26C969DD7EE72CFB695547C971A75D8BF1CC5980E0C727BD9F97F6B7489F687813BEB"
+        + "94DEB61031260C246B9B0A78C2A52017AA8C92";
 
     byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
 
@@ -214,5 +210,38 @@ public class AES256v2CryptorTest {
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
 
     cryptor.decryptData(ciphertext, "whoops!".toCharArray());
+  }
+
+  /**
+   * Tests we get an exception if we try to set an invalid iteration value.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadIterationValue() throws Exception {
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    cryptor.setPBKDFIterations(0);
+  }
+
+  /**
+   * Tests decryption of a known ciphertext but with the wrong iterations.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = InvalidHMACException.class)
+  public void testKnownCiphertextWithWrongIterations() throws Exception {
+    final String password = "P@ssw0rd!";
+
+    String knownCiphertext = "02013F194AA9969CF70C8ACB76824DE4CB6CDCF78B7449A87C679FB8EDB6"
+        + "A0109C513481DE877F3A855A184C4947F2B3E8FEF7E916E4739F9F889A717FCAF277402866341008A"
+        + "09FD3EBAC7FA26C969DD7EE72CFB695547C971A75D8BF1CC5980E0C727BD9F97F6B7489F687813BEB"
+        + "94DEB61031260C246B9B0A78C2A52017AA8C92";
+
+    byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
+
+    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    cryptor.setPBKDFIterations(1);
+    cryptor.decryptData(ciphertext, password.toCharArray());
+
   }
 }

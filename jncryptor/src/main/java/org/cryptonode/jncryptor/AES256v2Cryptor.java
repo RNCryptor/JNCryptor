@@ -16,6 +16,7 @@
 package org.cryptonode.jncryptor;
 
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
@@ -63,9 +64,11 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * The HMAC is calculated across all the data (except the HMAC itself, of
  * course), generated using the HMAC key described above and the SHA-256 PRF.
- * <p> 
- * See <a href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>, 
- * from which most of the information above was shamelessly copied.
+ * <p>
+ * See <a
+ * href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github
+ * .com/rnapier/RNCryptor/wiki/Data-Format</a>, from which most of the
+ * information above was shamelessly copied.
  */
 public class AES256v2Cryptor implements JNCryptor {
 
@@ -73,7 +76,7 @@ public class AES256v2Cryptor implements JNCryptor {
   private static final String HMAC_ALGORITHM = "HmacSHA256";
   private static final String AES_NAME = "AES";
   private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
-  private static final int PBKDF_ITERATIONS = 10000;
+  private static final int PBKDF_DEFAULT_ITERATIONS = 10000;
   private static final int VERSION = 2;
   private static final int AES_256_KEY_SIZE = 256 / 8;
   private static final int AES_BLOCK_SIZE = 16;
@@ -83,6 +86,8 @@ public class AES256v2Cryptor implements JNCryptor {
 
   // SecureRandom is threadsafe
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+  private int iterations = PBKDF_DEFAULT_ITERATIONS;
 
   static {
     // Register this class with the factory
@@ -108,13 +113,28 @@ public class AES256v2Cryptor implements JNCryptor {
       SecretKeyFactory factory = SecretKeyFactory
           .getInstance(KEY_DERIVATION_ALGORITHM);
       SecretKey tmp = factory.generateSecret(new PBEKeySpec(password, salt,
-          PBKDF_ITERATIONS, AES_256_KEY_SIZE * 8));
+          getIterations(), AES_256_KEY_SIZE * 8));
       return new SecretKeySpec(tmp.getEncoded(), AES_NAME);
     } catch (GeneralSecurityException e) {
       throw new CryptorException(String.format(
           "Failed to generate key from password using %s.",
           KEY_DERIVATION_ALGORITHM), e);
     }
+  }
+
+  /**
+   * @return the number of iterations to use for PBDKF2
+   */
+  private synchronized int getIterations() {
+    return iterations;
+  }
+
+  @Override
+  public synchronized void setPBKDFIterations(int iterations) {
+    Validate.isTrue(iterations > 0,
+        "Number of iterations must be greater than zero.");
+
+    this.iterations = iterations;
   }
 
   /**
@@ -147,6 +167,10 @@ public class AES256v2Cryptor implements JNCryptor {
           aesCiphertext.getIv()));
 
       return cipher.doFinal(aesCiphertext.getCiphertext());
+    } catch (InvalidKeyException e) {
+      throw new CryptorException(
+          "Caught InvalidKeyException. Do you have unlimited strength jurisdiction files installed?",
+          e);
     } catch (GeneralSecurityException e) {
       throw new CryptorException("Failed to decrypt message.", e);
     }
@@ -203,8 +227,8 @@ public class AES256v2Cryptor implements JNCryptor {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
       byte[] ciphertext = cipher.doFinal(plaintext);
 
-      AES256v2Ciphertext output = new AES256v2Ciphertext(encryptionSalt, hmacSalt,
-          iv, ciphertext);
+      AES256v2Ciphertext output = new AES256v2Ciphertext(encryptionSalt,
+          hmacSalt, iv, ciphertext);
 
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
       mac.init(hmacKey);
@@ -212,6 +236,10 @@ public class AES256v2Cryptor implements JNCryptor {
       output.setHmac(hmac);
       return output.getRawData();
 
+    } catch (InvalidKeyException e) {
+      throw new CryptorException(
+          "Caught InvalidKeyException. Do you have unlimited strength jurisdiction files installed?",
+          e);
     } catch (GeneralSecurityException e) {
       throw new CryptorException("Failed to generate ciphertext.", e);
     }

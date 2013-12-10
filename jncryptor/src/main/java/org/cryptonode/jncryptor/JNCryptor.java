@@ -111,9 +111,17 @@ public interface JNCryptor {
       SecretKey hmacKey) throws CryptorException;
 
   /**
-   * Returns the version number of this {@code RNCryptor}.
+   * Returns the version number of this {@code JNCryptor}.
    * 
    * @return the version number
    */
   int getVersionNumber();
+  
+  /**
+   * Changes the number of iterations used by this {@code JNCryptor}.
+   * 
+   * @param iterations
+   * @since 0.4
+   */
+  void setPBKDFIterations(int iterations);
 }

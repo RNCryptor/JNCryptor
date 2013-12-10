@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * 
  * <pre>
- * RNCryptor cryptor = RNCryptorFactory.getCryptor();
+ * JNCryptor cryptor = JNCryptorFactory.getCryptor();
  * </pre>
  * <p>
  * If a particular version is required, it can be obtained with the
@@ -44,6 +44,12 @@ import org.slf4j.LoggerFactory;
  * If the required version is not known, the ciphertext can be inspected to find
  * the correct version using the {@link #getCryptorForCiphertext(byte[])}
  * method. This method searches for the version byte stored in the ciphertext.
+ * <p>
+ * This factory uses a singleton pattern, so the same {@code JNCryptor} object
+ * will be returned every time (for that particular version). An implication of
+ * this is that any supposedly instance-level methods, such as
+ * {@link JNCryptor#setPBKDFIterations(int)} will affect the one global instance
+ * supplied by this factory.
  */
 public class JNCryptorFactory {
 
@@ -161,7 +167,7 @@ public class JNCryptorFactory {
    * Returns a list of the available {@link JNCryptor}s, arranged in ascending
    * order of version number.
    * 
-   * @return an ordered list of {@code RNCryptor}s.
+   * @return an ordered list of {@code JNCryptor}s.
    */
   public static List<JNCryptor> getCryptors() {
     List<JNCryptor> result = new ArrayList<JNCryptor>(supportedVersions.size());
