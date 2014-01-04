@@ -24,13 +24,12 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.cryptonode.jncryptor.JNCryptor;
-import org.cryptonode.jncryptor.JNCryptorFactory;
 import org.junit.Test;
 
 /**
  * 
  */
+@Deprecated
 public class JNCryptorFactoryTest {
 
   /**

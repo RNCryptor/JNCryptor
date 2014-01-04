@@ -1,4 +1,4 @@
-/*    Copyright 2013 Duncan Jones
+/*    Copyright 2014 Duncan Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.Validate;
 
 /**
- * This {@link JNCryptor} instance produces data in version 2 format.
+ * This {@link JNCryptor} instance produces data in version {@value #VERSION}
+ * format. It can read data in any format since version 2.
  * <p>
  * 
  * <pre>
@@ -40,7 +41,7 @@ import org.apache.commons.lang3.Validate;
  * </pre>
  * 
  * <ul>
- * <li><b>version</b> (1 byte): Data format version. Always {@code 0x02}.</li>
+ * <li><b>version</b> (1 byte): Data format version.</li>
  * <li><b>options</b> (1 byte): {@code 0x00} if keys are used, {@code 0x01} if a
  * password is used.</li>
  * <li><b>encryption salt</b> (8 bytes)</li>
@@ -54,9 +55,10 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * The encryption key is derived using the PKBDF2 function, using a random
  * eight-byte encryption salt, the supplied password and 10,000 iterations. The
- * HMAC key is derived in a similar fashion, using it's own random eight-byte
- * HMAC salt. Both salt values are stored in the ciphertext output (as shown
- * above).
+ * iteration count can be changed using the {@link #setPBKDFIterations(int)}
+ * method. The HMAC key is derived in a similar fashion, using its own random
+ * eight-byte HMAC salt. Both salt values are stored in the ciphertext output
+ * (as shown above).
  * 
  * <p>
  * The ciphertext is AES-256-CBC encrypted, using a randomly generated IV and
@@ -69,19 +71,15 @@ import org.apache.commons.lang3.Validate;
  * href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github
  * .com/rnapier/RNCryptor/wiki/Data-Format</a>, from which most of the
  * information above was shamelessly copied.
- * 
- * @deprecated Use {@link AES256JNCryptor} instead. This class will be removed
- *             in a later release.
  */
-@Deprecated
-public class AES256v2Cryptor implements JNCryptor {
+public class AES256JNCryptor implements JNCryptor {
 
   private static final String AES_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
   private static final String HMAC_ALGORITHM = "HmacSHA256";
   private static final String AES_NAME = "AES";
   private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
   private static final int PBKDF_DEFAULT_ITERATIONS = 10000;
-  private static final int VERSION = 2;
+  private static final int VERSION = 3;
   private static final int AES_256_KEY_SIZE = 256 / 8;
   private static final int AES_BLOCK_SIZE = 16;
 
@@ -93,16 +91,24 @@ public class AES256v2Cryptor implements JNCryptor {
 
   private int iterations = PBKDF_DEFAULT_ITERATIONS;
 
-  static {
-    // Register this class with the factory
-    JNCryptorFactory.registerCryptor(VERSION, new AES256v2Cryptor());
+  /**
+   * Creates a new {@code AES256JNCryptor} instance. Uses the default number of
+   * PBKDF iterations.
+   */
+  public AES256JNCryptor() {
   }
 
   /**
-   * This class should be accessed only via
-   * {@link JNCryptorFactory#getCryptor()}, except for unit testing.
+   * Creates a new {@code AES256JNCryptor} instance that uses a specific number
+   * of PBKDF iterations.
+   * 
+   * @param iterations
+   *          the number of PBKDF iterations to perform
    */
-  AES256v2Cryptor() {
+  public AES256JNCryptor(int iterations) {
+    Validate.isTrue(iterations > 0, "Iteration value must be positive.");
+
+    this.iterations = iterations;
   }
 
   @Override
@@ -154,7 +160,46 @@ public class AES256v2Cryptor implements JNCryptor {
    * @throws CryptorException
    *           if a JCE error occurs
    */
-  private byte[] decryptData(AES256v2Ciphertext aesCiphertext,
+  private byte[] decryptV2Data(AES256v2Ciphertext aesCiphertext,
+      SecretKey decryptionKey, SecretKey hmacKey) throws CryptorException {
+
+    try {
+      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(hmacKey);
+      byte[] hmacValue = mac.doFinal(aesCiphertext.getDataToHMAC());
+
+      if (!Arrays.equals(hmacValue, aesCiphertext.getHmac())) {
+        throw new InvalidHMACException("Incorrect HMAC value.");
+      }
+
+      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
+      cipher.init(Cipher.DECRYPT_MODE, decryptionKey, new IvParameterSpec(
+          aesCiphertext.getIv()));
+
+      return cipher.doFinal(aesCiphertext.getCiphertext());
+    } catch (InvalidKeyException e) {
+      throw new CryptorException(
+          "Caught InvalidKeyException. Do you have unlimited strength jurisdiction files installed?",
+          e);
+    } catch (GeneralSecurityException e) {
+      throw new CryptorException("Failed to decrypt message.", e);
+    }
+  }
+
+  /**
+   * Decrypts data.
+   * 
+   * @param aesCiphertext
+   *          the ciphertext from the message
+   * @param decryptionKey
+   *          the key to decrypt
+   * @param hmacKey
+   *          the key to recalculate the HMAC
+   * @return the decrypted data
+   * @throws CryptorException
+   *           if a JCE error occurs
+   */
+  private byte[] decryptV3Data(AES256v3Ciphertext aesCiphertext,
       SecretKey decryptionKey, SecretKey hmacKey) throws CryptorException {
 
     try {
@@ -185,6 +230,25 @@ public class AES256v2Cryptor implements JNCryptor {
       throws CryptorException {
     Validate.notNull(ciphertext, "Ciphertext cannot be null.");
 
+    // I don't like the magic numbers here, but can't think of a pleasant way
+    // to solve this
+    int version = readVersionNumber(ciphertext);
+    switch (version) {
+    case 2:
+      return decryptV2Data(ciphertext, password);
+
+    case 3:
+      return decryptV3Data(ciphertext, password);
+
+    default:
+      throw new CryptorException(String.format(
+          "Unrecognised version number: %d.", version));
+    }
+
+  }
+
+  private byte[] decryptV2Data(byte[] ciphertext, char[] password)
+      throws CryptorException {
     try {
       AES256v2Ciphertext aesCiphertext = new AES256v2Ciphertext(ciphertext);
 
@@ -197,7 +261,27 @@ public class AES256v2Cryptor implements JNCryptor {
           aesCiphertext.getEncryptionSalt());
       SecretKey hmacKey = keyForPassword(password, aesCiphertext.getHmacSalt());
 
-      return decryptData(aesCiphertext, decryptionKey, hmacKey);
+      return decryptV2Data(aesCiphertext, decryptionKey, hmacKey);
+    } catch (InvalidDataException e) {
+      throw new CryptorException("Unable to parse ciphertext.", e);
+    }
+  }
+
+  private byte[] decryptV3Data(byte[] ciphertext, char[] password)
+      throws CryptorException {
+    try {
+      AES256v3Ciphertext aesCiphertext = new AES256v3Ciphertext(ciphertext);
+
+      if (!aesCiphertext.isPasswordBased()) {
+        throw new IllegalArgumentException(
+            "Ciphertext was not encrypted with a password.");
+      }
+
+      SecretKey decryptionKey = keyForPassword(password,
+          aesCiphertext.getEncryptionSalt());
+      SecretKey hmacKey = keyForPassword(password, aesCiphertext.getHmacSalt());
+
+      return decryptV3Data(aesCiphertext, decryptionKey, hmacKey);
     } catch (InvalidDataException e) {
       throw new CryptorException("Unable to parse ciphertext.", e);
     }
@@ -231,7 +315,7 @@ public class AES256v2Cryptor implements JNCryptor {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
       byte[] ciphertext = cipher.doFinal(plaintext);
 
-      AES256v2Ciphertext output = new AES256v2Ciphertext(encryptionSalt,
+      AES256v3Ciphertext output = new AES256v3Ciphertext(encryptionSalt,
           hmacSalt, iv, ciphertext);
 
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
@@ -287,11 +371,20 @@ public class AES256v2Cryptor implements JNCryptor {
     Validate.notNull(decryptionKey, "Decryption key cannot be null.");
     Validate.notNull(hmacKey, "HMAC key cannot be null.");
 
-    AES256v2Ciphertext aesCiphertext;
     try {
-      aesCiphertext = new AES256v2Ciphertext(ciphertext);
+      int version = readVersionNumber(ciphertext);
 
-      return decryptData(aesCiphertext, decryptionKey, hmacKey);
+      switch (version) {
+      case 2:
+        return decryptV2Data(new AES256v2Ciphertext(ciphertext), decryptionKey,
+            hmacKey);
+      case 3:
+        return decryptV3Data(new AES256v3Ciphertext(ciphertext), decryptionKey,
+            hmacKey);
+      default:
+        throw new CryptorException(String.format(
+            "Unrecognised version number: %d.", version));
+      }
 
     } catch (InvalidDataException e) {
       throw new CryptorException("Unable to parse ciphertext.", e);
@@ -326,4 +419,10 @@ public class AES256v2Cryptor implements JNCryptor {
     }
   }
 
+  private static int readVersionNumber(byte[] data) {
+    Validate.isTrue(data.length > 0,
+        "Data must be at least one byte long to read version number.");
+
+    return data[0];
+  }
 }

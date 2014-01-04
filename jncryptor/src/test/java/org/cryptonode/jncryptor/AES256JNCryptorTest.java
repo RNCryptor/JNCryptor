@@ -1,4 +1,4 @@
-/*    Copyright 2013 Duncan Jones
+/*    Copyright 2014 Duncan Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ import org.junit.Test;
 /**
  * 
  */
-@Deprecated
-public class AES256v2CryptorTest {
+public class AES256JNCryptorTest {
 
   private static final Random RANDOM = new Random();
 
@@ -46,7 +45,7 @@ public class AES256v2CryptorTest {
     String password = "1234";
     byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
     byte[] plaintext2 = cryptor.decryptData(ciphertext, password.toCharArray());
     Assert.assertArrayEquals(plaintext, plaintext2);
@@ -63,7 +62,7 @@ public class AES256v2CryptorTest {
     String password = "1234";
     byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
 
     // Change one byte in the HMAC
@@ -80,11 +79,21 @@ public class AES256v2CryptorTest {
   @Test(expected = CryptorException.class)
   public void testBadInput() throws Exception {
     final byte[] nonsenseData = new byte[] { 0x45, 0x55 };
-    new AES256v2Cryptor().decryptData(nonsenseData, "blah".toCharArray());
+    new AES256JNCryptor().decryptData(nonsenseData, "blah".toCharArray());
   }
 
   /**
-   * Tests decryption of a known ciphertext.
+   * Tests an exception is thrown when the iteration count is zero.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadIterations() throws Exception {
+    new AES256JNCryptor(0);
+  }
+  
+  /**
+   * Tests decryption of a known (v2) ciphertext.
    * 
    * @throws Exception
    */
@@ -101,7 +110,7 @@ public class AES256v2CryptorTest {
 
     byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] plaintext = cryptor.decryptData(ciphertext, password.toCharArray());
 
     String plaintextString = new String(plaintext, Charsets.UTF_8);
@@ -117,7 +126,7 @@ public class AES256v2CryptorTest {
   //
   // final byte[] plaintext = plaintextString.getBytes("US-ASCII");
   //
-  // AES256v2Cryptor cryptor = new AES256v2Cryptor();
+  // AES256JNCryptor cryptor = new AES256JNCryptor();
   // byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
   //
   // System.out.println(DatatypeConverter.printHexBinary(plaintext));
@@ -132,7 +141,7 @@ public class AES256v2CryptorTest {
    */
   @Test(expected = NullPointerException.class)
   public void testNullCiphertextInDecrypt() throws Exception {
-    new AES256v2Cryptor().decryptData(null, "blah".toCharArray());
+    new AES256JNCryptor().decryptData(null, "blah".toCharArray());
   }
 
   /**
@@ -143,7 +152,7 @@ public class AES256v2CryptorTest {
    */
   @Test(expected = NullPointerException.class)
   public void testNullPlaintextInEncrypt() throws Exception {
-    new AES256v2Cryptor().encryptData(null, "blah".toCharArray());
+    new AES256JNCryptor().encryptData(null, "blah".toCharArray());
   }
 
   /**
@@ -159,7 +168,7 @@ public class AES256v2CryptorTest {
 
     final byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
     byte[] newPlaintext = cryptor.decryptData(ciphertext, encryptionKey,
         hmacKey);
@@ -180,8 +189,8 @@ public class AES256v2CryptorTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void testBadSaltLengthForKey() throws Exception {
-    new AES256v2Cryptor().keyForPassword(null,
-        new byte[AES256v2Cryptor.SALT_LENGTH + 1]);
+    new AES256JNCryptor().keyForPassword(null,
+        new byte[AES256JNCryptor.SALT_LENGTH + 1]);
   }
 
   /**
@@ -191,7 +200,7 @@ public class AES256v2CryptorTest {
    */
   @Test
   public void testVersionNumber() throws Exception {
-    assertEquals(2, new AES256v2Cryptor().getVersionNumber());
+    assertEquals(3, new AES256JNCryptor().getVersionNumber());
   }
 
   /**
@@ -207,7 +216,7 @@ public class AES256v2CryptorTest {
 
     final byte[] plaintext = "Hello, World!".getBytes();
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
 
     cryptor.decryptData(ciphertext, "whoops!".toCharArray());
@@ -220,7 +229,7 @@ public class AES256v2CryptorTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void testBadIterationValue() throws Exception {
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     cryptor.setPBKDFIterations(0);
   }
 
@@ -240,7 +249,7 @@ public class AES256v2CryptorTest {
 
     byte[] ciphertext = DatatypeConverter.parseHexBinary(knownCiphertext);
 
-    AES256v2Cryptor cryptor = new AES256v2Cryptor();
+    AES256JNCryptor cryptor = new AES256JNCryptor();
     cryptor.setPBKDFIterations(1);
     cryptor.decryptData(ciphertext, password.toCharArray());
 

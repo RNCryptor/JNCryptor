@@ -12,30 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.cryptonode.jncryptor;
 
-
 /**
- * A format compatible with version 2.
+ * Version 3 format.
  */
-class AES256v2Ciphertext extends AES256Ciphertext {
-  
-  @Override
-  int getVersionNumber() {
-    return 2;
+class AES256v3Ciphertext extends AES256Ciphertext {
+
+  public AES256v3Ciphertext(byte[] data) throws InvalidDataException {
+    super(data);
   }
 
-  AES256v2Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
+  public AES256v3Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,
       byte[] ciphertext) {
     super(encryptionSalt, hmacSalt, iv, ciphertext);
   }
 
-  AES256v2Ciphertext(byte[] iv, byte[] ciphertext) {
+  public AES256v3Ciphertext(byte[] iv, byte[] ciphertext) {
     super(iv, ciphertext);
   }
 
-  AES256v2Ciphertext(byte[] data) throws InvalidDataException {
-    super(data);
+  @Override
+  int getVersionNumber() {
+    return 3;
   }
+
 }
