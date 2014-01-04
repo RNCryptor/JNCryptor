@@ -31,8 +31,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.Validate;
 
 /**
- * This {@link JNCryptor} instance produces data in version {@value #VERSION}
- * format. It can read data in any format since version 2.
+ * This {@link JNCryptor} instance produces data in version 3 format. It can
+ * read data in any format since version 2.
  * <p>
  * 
  * <pre>
@@ -67,6 +67,10 @@ import org.apache.commons.lang3.Validate;
  * The HMAC is calculated across all the data (except the HMAC itself, of
  * course), generated using the HMAC key described above and the SHA-256 PRF.
  * <p>
+ * <p>
+ * This class is thread-safe. Multiple threads may share one instance of this
+ * class, or each thread may have its own instance.
+ * </p>
  * See <a
  * href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github
  * .com/rnapier/RNCryptor/wiki/Data-Format</a>, from which most of the
@@ -89,6 +93,7 @@ public class AES256JNCryptor implements JNCryptor {
   // SecureRandom is threadsafe
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
+  // Access to this variable must be synchronized
   private int iterations = PBKDF_DEFAULT_ITERATIONS;
 
   /**

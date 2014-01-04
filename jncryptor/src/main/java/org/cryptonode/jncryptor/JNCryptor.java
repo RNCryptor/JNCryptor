@@ -18,17 +18,17 @@ package org.cryptonode.jncryptor;
 import javax.crypto.SecretKey;
 
 /**
- * An {@link JNCryptor} encrypts and decrypts data in a proprietary format
+ * A {@link JNCryptor} encrypts and decrypts data in a proprietary format
  * originally devised by Rob Napier. Use the
  * {@link JNCryptorFactory#getCryptor()} method to retrieve a concrete
  * implementation.
  * <p>
- * An {@code JNCryptor} must be threadsafe, as a single instance will be
- * returned from the {@code JNCryptorFactory} and potentially shared between
- * threads.
+ * A {@code JNCryptor} must be threadsafe, as a single instance will be returned
+ * from the {@code JNCryptorFactory} and potentially shared between threads.
  * <p>
- * See <a href="https://github.com/rnapier/RNCryptor">https://github.com/rnapier/RNCryptor</a> 
- * for details on the original implementation in objective-c
+ * See <a
+ * href="https://github.com/rnapier/RNCryptor">https://github.com/rnapier/
+ * RNCryptor</a> for details on the original implementation in objective-c
  */
 public interface JNCryptor {
 
@@ -63,7 +63,7 @@ public interface JNCryptor {
       throws CryptorException, InvalidHMACException;
 
   /**
-   * Decrypts data with the supplied password.
+   * Decrypts data with the supplied keys.
    * 
    * @param ciphertext
    *          data to decrypt. Must be in the format described at <a
@@ -95,7 +95,7 @@ public interface JNCryptor {
   byte[] encryptData(byte[] plaintext, char[] password) throws CryptorException;
 
   /**
-   * Encrypts data with the supplied password.
+   * Encrypts data with the supplied keys.
    * 
    * @param plaintext
    *          the data to encrypt
@@ -116,7 +116,7 @@ public interface JNCryptor {
    * @return the version number
    */
   int getVersionNumber();
-  
+
   /**
    * Changes the number of iterations used by this {@code JNCryptor}.
    * 

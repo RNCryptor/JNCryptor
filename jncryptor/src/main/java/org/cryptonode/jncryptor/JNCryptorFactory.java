@@ -51,9 +51,8 @@ import org.slf4j.LoggerFactory;
  * {@link JNCryptor#setPBKDFIterations(int)} will affect the one global instance
  * supplied by this factory.
  * 
- * @deprecated As of v0.5, this class is deprecated. Create an instance of
- *             {@link AES256JNCryptor} instead. This class will be removed in a
- *             later release.
+ * @deprecated Use {@link AES256JNCryptor} instead. This class will be removed
+ *             in a later release.
  */
 @Deprecated
 public class JNCryptorFactory {
