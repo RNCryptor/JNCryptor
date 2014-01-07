@@ -75,6 +75,7 @@ import org.apache.commons.lang3.Validate;
  * href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github
  * .com/rnapier/RNCryptor/wiki/Data-Format</a>, from which most of the
  * information above was shamelessly copied.
+ * @since 0.5
  */
 public class AES256JNCryptor implements JNCryptor {
 
