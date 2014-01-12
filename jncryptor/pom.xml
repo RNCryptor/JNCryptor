@@ -22,7 +22,7 @@
 	</issueManagement>
 
 	<scm>
-		<connection>scm:svn:https://github.com/RNCryptor/JNCryptor.git</connection>
+		<connection>scm:git:https://github.com/RNCryptor/JNCryptor.git</connection>
 	</scm>
 
 	<developers>
