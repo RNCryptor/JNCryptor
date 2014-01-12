@@ -21,11 +21,9 @@
 		<url>https://github.com/RNCryptor/JNCryptor/issues</url>
 	</issueManagement>
 
-<!-- 	<scm> -->
-<!-- 		<developerConnection>scm:svn:https://jncryptor.googlecode.com/svn/trunk/jncryptor</developerConnection> -->
-<!-- 		<connection>scm:svn:http://jncryptor.googlecode.com/svn/trunk/jncryptor/</connection> -->
-<!-- 		<url>http://jncryptor.googlecode.com/svn/trunk/jncryptor/</url> -->
-<!-- 	</scm> -->
+	<scm>
+		<connection>scm:svn:https://github.com/RNCryptor/JNCryptor.git</connection>
+	</scm>
 
 	<developers>
 		<developer>
