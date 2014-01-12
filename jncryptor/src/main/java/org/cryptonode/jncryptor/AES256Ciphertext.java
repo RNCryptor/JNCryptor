@@ -15,10 +15,7 @@
 
 package org.cryptonode.jncryptor;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import java.util.Arrays;
 
 /**
  * Base class for parsing and producing formatted ciphertext.
@@ -49,6 +46,8 @@ abstract class AES256Ciphertext {
   private byte[] hmac;
 
   private final boolean isPasswordBased;
+  
+
 
   /**
    * Parses binary data to create an {@code AES256Ciphertext}.
@@ -315,17 +314,6 @@ abstract class AES256Ciphertext {
     return hmac;
   }
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this,
-        ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj, false);
-  }
-
   /**
    * Indicates if the ciphertext was created using a password. If so, then the
    * salt values will be present in the ciphertext.
@@ -349,4 +337,58 @@ abstract class AES256Ciphertext {
    * @return the expected version number
    */
   abstract int getVersionNumber();
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(ciphertext);
+    result = prime * result + Arrays.hashCode(encryptionSalt);
+    result = prime * result + Arrays.hashCode(hmac);
+    result = prime * result + Arrays.hashCode(hmacSalt);
+    result = prime * result + (isPasswordBased ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(iv);
+    result = prime * result + options;
+    result = prime * result + version;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AES256Ciphertext other = (AES256Ciphertext) obj;
+    if (!Arrays.equals(ciphertext, other.ciphertext)) {
+      return false;
+    }
+    if (!Arrays.equals(encryptionSalt, other.encryptionSalt)) {
+      return false;
+    }
+    if (!Arrays.equals(hmac, other.hmac)) {
+      return false;
+    }
+    if (!Arrays.equals(hmacSalt, other.hmacSalt)) {
+      return false;
+    }
+    if (isPasswordBased != other.isPasswordBased) {
+      return false;
+    }
+    if (!Arrays.equals(iv, other.iv)) {
+      return false;
+    }
+    if (options != other.options) {
+      return false;
+    }
+    if (version != other.version) {
+      return false;
+    }
+    return true;
+  }
 }

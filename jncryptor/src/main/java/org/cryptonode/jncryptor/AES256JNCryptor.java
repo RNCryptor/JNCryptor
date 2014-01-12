@@ -28,8 +28,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.lang3.Validate;
-
 /**
  * This {@link JNCryptor} instance produces data in version 3 format. It can
  * read data in any format since version 2.

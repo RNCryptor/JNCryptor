@@ -27,9 +27,6 @@ import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.FileUtils;
-
 /**
  * Reads test vectors supplied by Rob Napier.
  */
@@ -225,7 +222,7 @@ class TestVectorReader {
 
     try {
       URI uri = new URI(url.toString());
-      return FileUtils.readLines(new File(uri), Charsets.UTF_8);
+      return FileUtils.readLines(new File(uri), "UTF-8");
     } catch (URISyntaxException e) {
       throw new IOException(e);
     }

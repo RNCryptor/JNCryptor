@@ -14,8 +14,6 @@
  */
 package org.cryptonode.jncryptor;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Holds test vector data for KDF testing.
@@ -55,11 +53,4 @@ class KDFTestVector {
   byte[] getExpectedKey() {
     return expectedKey;
   }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this,
-        ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-
 }

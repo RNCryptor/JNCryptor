@@ -14,8 +14,6 @@
  */
 package org.cryptonode.jncryptor;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 /*
  * Holds test vector data for key testing.
@@ -69,14 +67,4 @@ class KeyTestVector {
     return ciphertext;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this,
-        ToStringStyle.SHORT_PREFIX_STYLE);
-  }
 }

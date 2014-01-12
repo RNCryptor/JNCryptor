@@ -1,6 +1,0 @@
-JNCryptor
-Copyright 2013 Duncan Jones
-
-See THIRD-PARTY.txt for a list of third-party libraries this 
-project depends upon and their licence information. A copy of 
-each license is available in the LICENSE*.txt files.
