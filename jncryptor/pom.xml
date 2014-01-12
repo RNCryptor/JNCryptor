@@ -22,8 +22,8 @@
 	</issueManagement>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/RNCryptor/JNCryptor.git</developerConnection>
-		<connection>scm:git:https://github.com/RNCryptor/JNCryptor.git</connection>
+		<developerConnection>scm:git:git@github.com:RNCryptor/JNCryptor.git</developerConnection>
+		<connection>scm:git:git@github.com:RNCryptor/JNCryptor.git</connection>
 		<url>https://github.com/RNCryptor/JNCryptor/tree/master/jncryptor</url>
 	</scm>
 
