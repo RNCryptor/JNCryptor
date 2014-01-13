@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * File handling methods.
  */
-public class FileUtils {
+class FileUtils {
 
   private FileUtils() {
   }
@@ -41,7 +41,7 @@ public class FileUtils {
    * @return a list, possibly empty, of the lines of the file
    * @throws IOException
    */
-  public static List<String> readLines(InputStream in, String charset)
+  static List<String> readLines(InputStream in, String charset)
       throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(in,
         charset));
@@ -64,8 +64,7 @@ public class FileUtils {
    *          the charset
    * @return a list, possibly empty, of the lines of the file
    */
-  public static List<String> readLines(File file, String charset)
-      throws IOException {
+  static List<String> readLines(File file, String charset) throws IOException {
     FileInputStream fis = new FileInputStream(file);
     try {
       return readLines(fis, charset);

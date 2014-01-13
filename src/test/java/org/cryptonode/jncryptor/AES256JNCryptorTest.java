@@ -17,6 +17,7 @@ package org.cryptonode.jncryptor;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Random;
 
@@ -33,6 +34,64 @@ import org.junit.Test;
 public class AES256JNCryptorTest {
 
   private static final Random RANDOM = new Random();
+
+  public void testNullOrEmptyPassword() throws Exception {
+    JNCryptor cryptor = new AES256JNCryptor();
+
+    try {
+      cryptor.encryptData("foo".getBytes(), null);
+      fail("Null password should fail on encrypt");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      cryptor.encryptData("foo".getBytes(), new char[0]);
+      fail("Empty password should fail on encrypt");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      cryptor.decryptData("foo".getBytes(), null);
+      fail("Null password should fail on decrypt");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      cryptor.decryptData("foo".getBytes(), new char[0]);
+      fail("Empty password should fail on decrypt");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      cryptor.keyForPassword(null, new byte[8]);
+      fail("Null password should fail on key-for-password");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    try {
+      cryptor.keyForPassword(new char[0], new byte[8]);
+      fail("Empty password should fail on key-for-password");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+  }
+
+  /**
+   * Tests the constructor sets the iteration count
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testIterationConstructor() throws Exception {
+    int iterations = 42;
+    AES256JNCryptor cryptor = new AES256JNCryptor(iterations);
+    assertEquals(iterations, cryptor.getPBKDFIterations());
+  }
 
   /**
    * Performs a simple round-trip encryption and decryption.
@@ -90,7 +149,7 @@ public class AES256JNCryptorTest {
   public void testBadIterations() throws Exception {
     new AES256JNCryptor(0);
   }
-  
+
   /**
    * Tests decryption of a known (v2) ciphertext.
    * 

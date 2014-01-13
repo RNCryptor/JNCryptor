@@ -73,6 +73,7 @@ import javax.crypto.spec.SecretKeySpec;
  * href="https://github.com/rnapier/RNCryptor/wiki/Data-Format">https://github
  * .com/rnapier/RNCryptor/wiki/Data-Format</a>, from which most of the
  * information above was shamelessly copied.
+ * 
  * @since 0.5
  */
 public class AES256JNCryptor implements JNCryptor {
@@ -122,12 +123,14 @@ public class AES256JNCryptor implements JNCryptor {
     Validate.notNull(salt, "Salt value cannot be null.");
     Validate.isTrue(salt.length == SALT_LENGTH, "Salt value must be %d bytes.",
         SALT_LENGTH);
+    Validate.notNull(password, "Password cannot be null.");
+    Validate.isTrue(password.length > 0, "Password cannot be empty.");
 
     try {
       SecretKeyFactory factory = SecretKeyFactory
           .getInstance(KEY_DERIVATION_ALGORITHM);
       SecretKey tmp = factory.generateSecret(new PBEKeySpec(password, salt,
-          getIterations(), AES_256_KEY_SIZE * 8));
+          getPBKDFIterations(), AES_256_KEY_SIZE * 8));
       return new SecretKeySpec(tmp.getEncoded(), AES_NAME);
     } catch (GeneralSecurityException e) {
       throw new CryptorException(String.format(
@@ -136,10 +139,7 @@ public class AES256JNCryptor implements JNCryptor {
     }
   }
 
-  /**
-   * @return the number of iterations to use for PBDKF2
-   */
-  private synchronized int getIterations() {
+  public synchronized int getPBKDFIterations() {
     return iterations;
   }
 
@@ -233,6 +233,8 @@ public class AES256JNCryptor implements JNCryptor {
   public byte[] decryptData(byte[] ciphertext, char[] password)
       throws CryptorException {
     Validate.notNull(ciphertext, "Ciphertext cannot be null.");
+    Validate.notNull(password, "Password cannot be null.");
+    Validate.isTrue(password.length > 0, "Password cannot be empty.");
 
     // I don't like the magic numbers here, but can't think of a pleasant way
     // to solve this
@@ -341,6 +343,8 @@ public class AES256JNCryptor implements JNCryptor {
   public byte[] encryptData(byte[] plaintext, char[] password)
       throws CryptorException {
     Validate.notNull(plaintext, "Plaintext cannot be null.");
+    Validate.notNull(password, "Password cannot be null.");
+    Validate.isTrue(password.length > 0, "Password cannot be empty.");
 
     byte[] encryptionSalt = getSecureRandomData(SALT_LENGTH);
     byte[] hmacSalt = getSecureRandomData(SALT_LENGTH);

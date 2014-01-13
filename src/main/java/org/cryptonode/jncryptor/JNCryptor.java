@@ -19,12 +19,7 @@ import javax.crypto.SecretKey;
 
 /**
  * A {@link JNCryptor} encrypts and decrypts data in a proprietary format
- * originally devised by Rob Napier. Use the
- * {@link JNCryptorFactory#getCryptor()} method to retrieve a concrete
- * implementation.
- * <p>
- * A {@code JNCryptor} must be threadsafe, as a single instance will be returned
- * from the {@code JNCryptorFactory} and potentially shared between threads.
+ * originally devised by Rob Napier.
  * <p>
  * See <a
  * href="https://github.com/rnapier/RNCryptor">https://github.com/rnapier/
@@ -36,8 +31,7 @@ public interface JNCryptor {
    * Generates a key given a password and salt using a PBKDF.
    * 
    * @param password
-   *          password to use for PBKDF, can be <code>null</code> in which case
-   *          the behaviour is identical to passing an empty char array
+   *          password to use for PBKDF. Cannot be empty or <code>null</code>.
    * @param salt
    *          salt for password, cannot be <code>null</code>
    * @return the key
@@ -53,9 +47,8 @@ public interface JNCryptor {
    *          href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
    *          >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
    * @param password
-   *          password to use for the decryption. A <code>null</code> value or
-   *          an empty char array are considered equal (and are both valid
-   *          values).
+   *          password to use for the decryption. Cannot be empty or
+   *          <code>null</code>.
    * @return the plain text
    * @throws InvalidHMACException
    */
@@ -85,9 +78,8 @@ public interface JNCryptor {
    * @param plaintext
    *          the data to encrypt
    * @param password
-   *          password to use for the encryption. A <code>null</code> value or
-   *          an empty char array are considered equal (and are both valid
-   *          values).
+   *          password to use for the encryption. Cannot be empty or
+   *          <code>null</code>.
    * @return the ciphertext, in the format described at <a
    *         href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
    *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
@@ -111,7 +103,8 @@ public interface JNCryptor {
       SecretKey hmacKey) throws CryptorException;
 
   /**
-   * Returns the version number of this {@code JNCryptor}.
+   * Returns the version number of the data format supported by this
+   * {@code JNCryptor}.
    * 
    * @return the version number
    */
@@ -124,4 +117,12 @@ public interface JNCryptor {
    * @since 0.4
    */
   void setPBKDFIterations(int iterations);
+
+  /**
+   * Gets the number of iterations used by this {@code JNCryptor}.
+   * 
+   * @return the number of PBKDF2 iterations
+   * @since 1.0.0
+   */
+  int getPBKDFIterations();
 }
