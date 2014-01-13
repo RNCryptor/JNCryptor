@@ -1,7 +1,7 @@
 JNCryptor Overview
 ========
 
-JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [https://github.com/rnapier/RNCryptor RNCryptor] library for iOS.
+JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/rnapier/RNCryptor) library for iOS.
 
 Getting JNCryptor
 -----------------
