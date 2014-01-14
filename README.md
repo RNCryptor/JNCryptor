@@ -1,7 +1,23 @@
 JNCryptor 
 ========
 
-JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/rnapier/RNCryptor) library for iOS.
+JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/RNCryptor/RNCryptor) library for iOS.
+
+News
+----
+
+| Date        | News           | 
+| ------------- | ------------- | 
+| 2014-01-13      | Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.  |
+| 2014-01-13      | Projected moved to GitHub. |
+| 2014-01-07      | Version 0.5 released. This version supports v3 of the RNCryptor format, which was necessary due to a bug in the objective-c implementation (see [original issue here](https://github.com/rnapier/RNCryptor/issues/77)). This new version of JNCryptor deprecates the factory-style method of creating instances in favour of a new class, `AES256JNCryptor`. See the documentation for more details. | 
+| 2013-12-27      | Version 0.4 released. Now the number of PBKDF iterations can be set. Note: read the caution below before considering using variable iterations.      | 
+| 2013-02-28 | Version 0.3 released. Fixes an issue where spaces in the path to the JAR caused the factory to fail.      | 
+| 2013-02-03 | Version 0.2 released. No functionality changes, however the dependencies are now correctly contained in the binary downloads.      |
+| 2013-01-31 | Version 0.1 released.      |
+
+
+
 
 Getting JNCryptor
 -----------------
@@ -39,13 +55,10 @@ try {
 Iterations
 ----------
 
-JNCryptor supports changing the number of PBKDF2 iterations performed by the library. I regret introducing this functionality for two reasons:
+JNCryptor supports changing the number of PBKDF2 iterations performed by the library. Unfortunately, the number of iterations is not currently encoded in the data format, which means that both sides of the conversation need to know how many iterations have been used.
 
-* It is a lazy effort to try and improve performance on Android devices at the expense of security. Really I need to benchmark the library and determine where the slow points are.
+There are plans afoot to include the ieration count in the data format (hopefully in v4). Until that time, use these feature with caution.
 
-* There is no support in the data format for expressing the number of iterations, therefore you must store this value outside the data itself. Other implementations may not support this feature, causing compatibility problems.
-
-In summary - consider ignoring this feature until the data format supports it. Hopefully I'll improve performance in other ways before that.
 
 Android
 -------
