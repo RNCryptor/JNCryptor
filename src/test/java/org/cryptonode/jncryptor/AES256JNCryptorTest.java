@@ -105,6 +105,10 @@ public class AES256JNCryptorTest {
 
     AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, password.toCharArray());
+
+    // Check version
+    assertEquals(AES256v3Ciphertext.EXPECTED_VERSION, ciphertext[0]);
+
     byte[] plaintext2 = cryptor.decryptData(ciphertext, password.toCharArray());
     Assert.assertArrayEquals(plaintext, plaintext2);
   }
@@ -228,6 +232,10 @@ public class AES256JNCryptorTest {
 
     AES256JNCryptor cryptor = new AES256JNCryptor();
     byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
+
+    // Check version
+    assertEquals(AES256v3Ciphertext.EXPECTED_VERSION, ciphertext[0]);
+
     byte[] newPlaintext = cryptor.decryptData(ciphertext, encryptionKey,
         hmacKey);
     assertArrayEquals(plaintext, newPlaintext);
