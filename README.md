@@ -8,6 +8,7 @@ News
 
 | Date        | News           | 
 | ------------- | ------------- | 
+| 2014-01-19      | Version 1.0.1 released. Fixes issue #4, which caused the wrong version number to be output in some situations.  |
 | 2014-01-13      | Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.  |
 | 2014-01-13      | Projected moved to GitHub. |
 | 2014-01-07      | Version 0.5 released. This version supports v3 of the RNCryptor format, which was necessary due to a bug in the objective-c implementation (see [original issue here](https://github.com/rnapier/RNCryptor/issues/77)). This new version of JNCryptor deprecates the factory-style method of creating instances in favour of a new class, `AES256JNCryptor`. See the documentation for more details. | 
@@ -28,7 +29,7 @@ You can download binaries, documentation and source from the Releases page.  Mav
 <dependency>
     <groupId>org.cryptonode.jncryptor</groupId>
     <artifactId>jncryptor</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ````
 
