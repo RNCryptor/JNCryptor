@@ -27,6 +27,8 @@ import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.FileUtils;
+
 /**
  * Reads test vectors supplied by Rob Napier.
  */

@@ -78,8 +78,16 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class AES256JNCryptor implements JNCryptor {
 
-  private static final String AES_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
-  private static final String HMAC_ALGORITHM = "HmacSHA256";
+  /**
+   * AES encryption/decryption algorithm.
+   */
+  static final String AES_CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
+
+  /**
+   * HMAC algorithm
+   */
+  static final String HMAC_ALGORITHM = "HmacSHA256";
+  
   private static final String AES_NAME = "AES";
   private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
   private static final int PBKDF_DEFAULT_ITERATIONS = 10000;

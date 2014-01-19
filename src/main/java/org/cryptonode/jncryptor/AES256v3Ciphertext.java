@@ -18,6 +18,8 @@ package org.cryptonode.jncryptor;
  * Version 3 format.
  */
 class AES256v3Ciphertext extends AES256Ciphertext {
+  
+  static final int EXPECTED_VERSION = 3;
 
   public AES256v3Ciphertext(byte[] data) throws InvalidDataException {
     super(data);
@@ -34,7 +36,7 @@ class AES256v3Ciphertext extends AES256Ciphertext {
 
   @Override
   int getVersionNumber() {
-    return 3;
+    return EXPECTED_VERSION;
   }
 
 }
