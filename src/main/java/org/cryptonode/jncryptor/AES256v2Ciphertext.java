@@ -21,9 +21,11 @@ package org.cryptonode.jncryptor;
  */
 class AES256v2Ciphertext extends AES256Ciphertext {
   
+  static final int EXPECTED_VERSION = 2;
+  
   @Override
   int getVersionNumber() {
-    return 2;
+    return EXPECTED_VERSION;
   }
 
   AES256v2Ciphertext(byte[] encryptionSalt, byte[] hmacSalt, byte[] iv,

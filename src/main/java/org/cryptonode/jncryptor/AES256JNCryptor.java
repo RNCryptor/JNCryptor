@@ -414,7 +414,7 @@ public class AES256JNCryptor implements JNCryptor {
       cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
       byte[] ciphertext = cipher.doFinal(plaintext);
 
-      AES256v2Ciphertext output = new AES256v2Ciphertext(iv, ciphertext);
+      AES256v3Ciphertext output = new AES256v3Ciphertext(iv, ciphertext);
 
       Mac mac = Mac.getInstance(HMAC_ALGORITHM);
       mac.init(hmacKey);
