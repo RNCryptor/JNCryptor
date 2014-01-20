@@ -15,6 +15,7 @@
 package org.cryptonode.jncryptor;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -23,7 +24,6 @@ import java.io.InputStream;
 import java.util.Random;
 
 import javax.crypto.SecretKey;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -38,19 +38,18 @@ public class AES256JNCryptorInputStreamTest {
    */
   @Test
   public void testUsingRead() throws Exception {
-    byte[] plaintext = getRandomBytes(256);
+    byte[] plaintext = getRandomBytes(1);
 
     final String password = "Testing1234";
 
     JNCryptor cryptor = new AES256JNCryptor();
     byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
-
+    
     InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
         data), password.toCharArray());
 
     try {
-
-      byte[] result = new byte[256];
+      byte[] result = new byte[plaintext.length];
       int offset = 0;
       int b;
       while ((b = in.read()) != -1) {
@@ -174,8 +173,7 @@ public class AES256JNCryptorInputStreamTest {
    * 
    * @throws Exception
    */
-  @Test(expected = IOException.class)
-  // TODO check for exact message
+  @Test(expected = StreamIntegrityException.class)
   public void testBadHMAC() throws Exception {
     byte[] plaintext = getRandomBytes(256);
 
@@ -183,19 +181,75 @@ public class AES256JNCryptorInputStreamTest {
 
     JNCryptor cryptor = new AES256JNCryptor();
     byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
-    System.out.println(DatatypeConverter.printHexBinary(data));
     data[data.length - 1] = (byte) (data[data.length - 1] + 1);
-    System.out.println(DatatypeConverter.printHexBinary(data));
 
     InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
         data), password.toCharArray());
 
     try {
-
-      byte[] result = new byte[256];
+      byte[] result = new byte[plaintext.length];
       IOUtils.readFully(in, result);
 
       assertArrayEquals(plaintext, result);
+    } finally {
+      in.close();
+    }
+  }
+
+  /**
+   * Test failure if MAC is broken, by reading exactly the right number of
+   * bytes.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = StreamIntegrityException.class)
+  public void testBadHMACExactLength() throws Exception {
+    byte[] plaintext = getRandomBytes(256);
+
+    final String password = "Testing1234";
+
+    JNCryptor cryptor = new AES256JNCryptor();
+    byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
+    data[data.length - 1] = (byte) (data[data.length - 1] + 1);
+
+    InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
+        data), password.toCharArray());
+
+    try {
+      byte[] result = new byte[plaintext.length];
+      int read = in.read(result);
+      assertEquals(result.length, read);
+    } finally {
+      in.close();
+    }
+  }
+
+  /**
+   * Test failure if MAC is broken, by reading exactly the right number of
+   * bytes.
+   * 
+   * @throws Exception
+   */
+  @Test(expected = StreamIntegrityException.class)
+  public void testBadHMACExactLengthByByte() throws Exception {
+    byte[] plaintext = getRandomBytes(256);
+
+    final String password = "Testing1234";
+
+    JNCryptor cryptor = new AES256JNCryptor();
+    byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
+    data[data.length - 1] = (byte) (data[data.length - 1] + 1);
+
+    InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
+        data), password.toCharArray());
+
+    try {
+      byte[] result = new byte[plaintext.length];
+
+      for (int i = 0; i < result.length; i++) {
+        result[i] = (byte) in.read();
+      }
+
     } finally {
       in.close();
     }

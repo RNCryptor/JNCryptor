@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
@@ -31,7 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.TeeInputStream;
 
 /**
- * 
+ * Reads RNCryptor-format data in a stream fashion.
  */
 public class AES256JNCryptorInputStream extends InputStream {
 
@@ -42,10 +43,12 @@ public class AES256JNCryptorInputStream extends InputStream {
   private char[] password;
   private SecretKey decryptionKey;
   private SecretKey hmacKey;
-
+  private boolean endOfStreamHandled = false;
+  
+  private PushbackInputStream pushbackInputStream;
   private TrailerInputStream trailerIn;
   private CipherInputStream decryptionStream;
-  private ByteArrayOutputStream rawInputStream;
+  private ByteArrayOutputStream rawOutputStream;
   private Mac mac;
 
   /**
@@ -160,14 +163,15 @@ public class AES256JNCryptorInputStream extends InputStream {
           new IvParameterSpec(iv));
 
       // The available() method is far from perfect, but it is better than no
-      // guess
-      // at all.
-      rawInputStream = new ByteArrayOutputStream(trailerIn.available());
+      // guess at all.
+      rawOutputStream = new ByteArrayOutputStream(trailerIn.available());
 
       // The decryption stream will write the non-decrypted bytes to the mac
       // stream
       decryptionStream = new CipherInputStream(new TeeInputStream(trailerIn,
-          rawInputStream), decryptCipher);
+          rawOutputStream), decryptCipher);
+
+      pushbackInputStream = new PushbackInputStream(decryptionStream, 1);
 
       mac = Mac.getInstance(AES256JNCryptor.HMAC_ALGORITHM);
       mac.init(hmacKey);
@@ -180,44 +184,128 @@ public class AES256JNCryptorInputStream extends InputStream {
     }
   }
 
+  /**
+   * Reads the next byte from the input stream. If this is the last byte in the
+   * stream (determined by peeking ahead to the next byte), the value of the
+   * HMAC is verified. If the verification fails an exception is thrown.
+   * 
+   * @return the next byte from the input stream, or {@code -1} if the end of
+   *         the stream has been reached
+   * @throws IOException
+   *           if an I/O error occurs.
+   * @throws StreamIntegrityException
+   *           if the final byte has been read and the HMAC fails validation
+   */
   @Override
-  public int read() throws IOException {
+  public int read() throws IOException, StreamIntegrityException {
     if (trailerIn == null) {
       initializeStream();
     }
 
-    int result = decryptionStream.read();
-    if (result == END_OF_STREAM) {
-      handleEndOfStream();
-    } else {
-      mac.update(rawInputStream.toByteArray());
-      rawInputStream.reset();
-    }
-
-    return result;
+    int result = pushbackInputStream.read();
+    return completeRead(result);
   }
 
+  /**
+   * The {@code read(b)} method for class {@code AES256JNCryptorInputStream} has
+   * the same effect as:
+   * <p>
+   * {@code read(b, 0, b.length)}
+   * 
+   * @param b
+   *          the buffer into which the data is read.
+   * @return the total number of bytes read into the buffer, or {@code -1} if
+   *         there is no more data because the end of the stream has been
+   *         reached.
+   * 
+   * @throws IOException
+   *           if an I/O error occurs.
+   * @throws StreamIntegrityException
+   *           if the final byte has been read and the HMAC fails validation
+   */
   @Override
-  public int read(byte[] b) throws IOException {
+  public int read(byte[] b) throws IOException, StreamIntegrityException {
+    Validate.notNull(b, "Array cannot be null.");
+
     return read(b, 0, b.length);
   }
 
+  /**
+   * Reads a number of bytes into the byte array. If this includes the last byte
+   * in the stream (determined by peeking ahead to the next byte), the value of
+   * the HMAC is verified. If the verification fails an exception is thrown.
+   * 
+   * @param b
+   *          the buffer into which the data is read.
+   * @param off
+   *          the start offset in array <code>b</code> at which the data is
+   *          written.
+   * @param len
+   *          the maximum number of bytes to read.
+   * @return the total number of bytes read into the buffer, or <code>-1</code>
+   *         if there is no more data because the end of the stream has been
+   *         reached.
+   * @throws IOException
+   *           If the first byte cannot be read for any reason other than end of
+   *           file, or if the input stream has been closed, or if some other
+   *           I/O error occurs.
+   * @throws NullPointerException
+   *           If <code>b</code> is <code>null</code>.
+   * @throws IndexOutOfBoundsException
+   *           If <code>off</code> is negative, <code>len</code> is negative, or
+   *           <code>len</code> is greater than <code>b.length - off</code>
+   * @throws StreamIntegrityException
+   *           if the final byte has been read and the HMAC fails validation
+   */
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
+    Validate.notNull(b, "Byte array cannot be null.");
+
+    Validate.isTrue(off >= 0, "Offset cannot be negative.");
+    Validate.isTrue(len >= 0, "Length cannot be negative.");
+    Validate.isTrue(len + off <= b.length,
+        "Length plus offset cannot be longer than byte array.");
+
+    if (len == 0) {
+      return 0;
+    }
+
     if (trailerIn == null) {
       initializeStream();
     }
 
-    int result = decryptionStream.read(b, off, len);
-    if (result == END_OF_STREAM) {
+    int result = pushbackInputStream.read(b, off, len);
+    return completeRead(result);
+  }
+
+  /**
+   * Updates the HMAC value and handles the end of stream.
+   * 
+   * @param b
+   *          the result of a read operation
+   * @return the value {@code b}
+   * @throws IOException
+   * @throws StreamIntegrityException
+   */
+  private int completeRead(int b) throws IOException, StreamIntegrityException {
+    if (b == END_OF_STREAM) {
       handleEndOfStream();
     } else {
       // update mac
-      mac.update(rawInputStream.toByteArray());
-      rawInputStream.reset();
+      mac.update(rawOutputStream.toByteArray());
+      rawOutputStream.reset();
+
+      // Have we reached the end of the stream?
+      int c = pushbackInputStream.read();
+      rawOutputStream.reset(); // don't want to actually keep this byte
+      if (c == END_OF_STREAM) {
+        handleEndOfStream();
+      } else {
+        pushbackInputStream.unread(c);
+      }
     }
 
-    return result;
+    return b;
   }
 
   /**
@@ -226,11 +314,18 @@ public class AES256JNCryptorInputStream extends InputStream {
    * @throws IOException
    *           if the HMAC value is incorrect
    */
-  private void handleEndOfStream() throws IOException {
+  private void handleEndOfStream() throws StreamIntegrityException {
+    if (endOfStreamHandled) {
+      return;
+    }
+    
+    endOfStreamHandled = true;
+    
     byte[] originalHMAC = trailerIn.getTrailer();
     byte[] calculateHMAC = mac.doFinal();
+
     if (!Arrays.equals(originalHMAC, calculateHMAC)) {
-      throw new IOException("MAC validation failed.");
+      throw new StreamIntegrityException("MAC validation failed.");
     }
   }
 
@@ -240,9 +335,13 @@ public class AES256JNCryptorInputStream extends InputStream {
   @Override
   public void close() throws IOException {
     try {
-      closeIfNotNull(decryptionStream);
+      closeIfNotNull(pushbackInputStream);
     } finally {
-      closeIfNotNull(trailerIn);
+      try {
+        closeIfNotNull(decryptionStream);
+      } finally {
+        closeIfNotNull(trailerIn);
+      }
     }
   }
 
