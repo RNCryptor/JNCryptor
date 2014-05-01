@@ -44,7 +44,7 @@ public class AES256JNCryptorInputStream extends InputStream {
   private SecretKey decryptionKey;
   private SecretKey hmacKey;
   private boolean endOfStreamHandled = false;
-  
+
   private PushbackInputStream pushbackInputStream;
   private TrailerInputStream trailerIn;
   private CipherInputStream decryptionStream;
@@ -83,6 +83,11 @@ public class AES256JNCryptorInputStream extends InputStream {
     this.in = in;
   }
 
+  /**
+   * Mark and reset methods are not supported in this input stream.
+   * 
+   * @return <code>false</code>
+   */
   @Override
   public boolean markSupported() {
     return false;
@@ -318,9 +323,9 @@ public class AES256JNCryptorInputStream extends InputStream {
     if (endOfStreamHandled) {
       return;
     }
-    
+
     endOfStreamHandled = true;
-    
+
     byte[] originalHMAC = trailerIn.getTrailer();
     byte[] calculateHMAC = mac.doFinal();
 

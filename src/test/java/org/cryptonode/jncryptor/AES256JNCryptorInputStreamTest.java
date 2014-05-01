@@ -16,6 +16,7 @@ package org.cryptonode.jncryptor;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -70,7 +71,7 @@ public class AES256JNCryptorInputStreamTest {
    * @throws Exception
    */
   @Test
-  public void testUsingReadByteArray() throws Exception {
+  public void testUsingReadByteArrayWithOffset() throws Exception {
     byte[] plaintext = getRandomBytes(256);
 
     final String password = "Testing1234";
@@ -91,6 +92,35 @@ public class AES256JNCryptorInputStreamTest {
       in.close();
     }
   }
+  
+  
+  /**
+   * Test reading using read(byte[]) method.
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testUsingReadByteArray() throws Exception {
+    byte[] plaintext = getRandomBytes(256);
+
+    final String password = "Testing1234";
+
+    JNCryptor cryptor = new AES256JNCryptor();
+    byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
+
+    InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
+        data), password.toCharArray());
+
+    try {
+
+      byte[] result = new byte[256];
+      in.read(result);
+
+      assertArrayEquals(plaintext, result);
+    } finally {
+      in.close();
+    }
+  }  
 
   /**
    * Test reading of mismatched data (e.g. encrypte using keys, decrypted with
@@ -253,6 +283,22 @@ public class AES256JNCryptorInputStreamTest {
     } finally {
       in.close();
     }
+  }
+  
+  
+  @Test
+  public void testMarkNotSupported() throws Exception {
+    byte[] plaintext = getRandomBytes(1);
+
+    final String password = "Testing1234";
+
+    JNCryptor cryptor = new AES256JNCryptor();
+    byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
+    
+    InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
+        data), password.toCharArray());
+    
+    assertFalse(in.markSupported());
   }
 
   private static byte[] getRandomBytes(int length) {
