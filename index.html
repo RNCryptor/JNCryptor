@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Jncryptor : Java implementation of RNCryptor" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Jncryptor</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/RNCryptor/JNCryptor">View on GitHub</a>
+
+          <h1 id="project_title">Jncryptor</h1>
+          <h2 id="project_tagline">Java implementation of RNCryptor</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/RNCryptor/JNCryptor/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/RNCryptor/JNCryptor/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="jncryptor-" class="anchor" href="#jncryptor-"><span class="octicon octicon-link"></span></a>JNCryptor </h1>
+
+<p>JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the <a href="https://github.com/RNCryptor/RNCryptor">RNCryptor</a> library for iOS.</p>
+
+<h2>
+<a name="news" class="anchor" href="#news"><span class="octicon octicon-link"></span></a>News</h2>
+
+<table>
+<thead><tr>
+<th>Date</th>
+<th>News</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>2014-01-19</td>
+<td>Version 1.0.1 released. Fixes issue #4, which caused the wrong version number to be output in some situations.</td>
+</tr>
+<tr>
+<td>2014-01-13</td>
+<td>Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.</td>
+</tr>
+<tr>
+<td>2014-01-13</td>
+<td>Projected moved to GitHub.</td>
+</tr>
+<tr>
+<td>2014-01-07</td>
+<td>Version 0.5 released. This version supports v3 of the RNCryptor format, which was necessary due to a bug in the objective-c implementation (see <a href="https://github.com/rnapier/RNCryptor/issues/77">original issue here</a>). This new version of JNCryptor deprecates the factory-style method of creating instances in favour of a new class, <code>AES256JNCryptor</code>. See the documentation for more details.</td>
+</tr>
+<tr>
+<td>2013-12-27</td>
+<td>Version 0.4 released. Now the number of PBKDF iterations can be set. Note: read the caution below before considering using variable iterations.</td>
+</tr>
+<tr>
+<td>2013-02-28</td>
+<td>Version 0.3 released. Fixes an issue where spaces in the path to the JAR caused the factory to fail.</td>
+</tr>
+<tr>
+<td>2013-02-03</td>
+<td>Version 0.2 released. No functionality changes, however the dependencies are now correctly contained in the binary downloads.</td>
+</tr>
+<tr>
+<td>2013-01-31</td>
+<td>Version 0.1 released.</td>
+</tr>
+</tbody>
+</table><h2>
+<a name="getting-jncryptor" class="anchor" href="#getting-jncryptor"><span class="octicon octicon-link"></span></a>Getting JNCryptor</h2>
+
+<p>You can download binaries, documentation and source from the Releases page.  Maven users can copy the following snippet to retrieve the artifacts from Maven Central:</p>
+
+<div class="highlight highlight-xml"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.cryptonode.jncryptor<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jncryptor<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.0.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+<p>The Javadocs can also be browsed online (TODO).</p>
+
+<h2>
+<a name="using-jncryptor" class="anchor" href="#using-jncryptor"><span class="octicon octicon-link"></span></a>Using JNCryptor</h2>
+
+<p>A quick example is shown below:</p>
+
+<div class="highlight highlight-java"><pre><span class="n">JNCryptor</span> <span class="n">cryptor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AES256JNCryptor</span><span class="o">();</span>
+<span class="kt">byte</span><span class="o">[]</span> <span class="n">plaintext</span> <span class="o">=</span> <span class="s">"Hello, World!"</span><span class="o">.</span><span class="na">getBytes</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="s">"secretsquirrel"</span><span class="o">;</span>
+
+<span class="k">try</span> <span class="o">{</span>
+  <span class="kt">byte</span><span class="o">[]</span> <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">cryptor</span><span class="o">.</span><span class="na">encryptData</span><span class="o">(</span><span class="n">plaintext</span><span class="o">,</span> <span class="n">password</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">());</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">CryptorException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// Something went wrong</span>
+  <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+<h2>
+<a name="iterations" class="anchor" href="#iterations"><span class="octicon octicon-link"></span></a>Iterations</h2>
+
+<p>JNCryptor supports changing the number of PBKDF2 iterations performed by the library. Unfortunately, the number of iterations is not currently encoded in the data format, which means that both sides of the conversation need to know how many iterations have been used.</p>
+
+<p>There are plans afoot to include the ieration count in the data format (hopefully in v4). Until that time, use these feature with caution.</p>
+
+<h2>
+<a name="android" class="anchor" href="#android"><span class="octicon octicon-link"></span></a>Android</h2>
+
+<p>JNCryptor can be used in Android applications. Download the latest binary release and place the JAR in the <code>libs</code> folder for your project.</p>
+
+<p>Please note that very little Android testing has been completed and some users report compatibility problems with old versions of Android (see the Issues page). If I can find an easy way to do so, I'll start increasing my Android testing and improve the library accordingly. </p>
+
+<h2>
+<a name="data-format" class="anchor" href="#data-format"><span class="octicon octicon-link"></span></a>Data Format</h2>
+
+<p>A proprietary data format is used that stores the IV, salt values (if applicable), ciphertext and HMAC value in a compact fashion. Methods are offered to encrypt data based on either an existing key, or a password. In the latter case, a key is derived from the password using a key derivation function, with 10,000 iterations and a salt valu.e</p>
+
+<p>See <a href="https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md">the spec documents online</a>.</p>
+
+<p>Keys are derived from the password and the appropriate salt value using the PBKDF2 function with SHA1. A separate key is generated for encrypting the plaintext and computing the HMAC.</p>
+
+<h2>
+<a name="history" class="anchor" href="#history"><span class="octicon octicon-link"></span></a>History</h2>
+
+<p>The data format supported by this library is v3. Both v1 and v0 have a <a href="http://robnapier.net/blog/rncryptor-hmac-vulnerability-827">significant security flaw</a> whereby only the ciphertext was included in the HMAC value. There are no plans to support v1 or v0. v2 was deprecated due to a multi-byte password issue discovered in the objective-c implementation.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Jncryptor maintained by <a href="https://github.com/RNCryptor">RNCryptor</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
