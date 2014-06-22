@@ -14,10 +14,10 @@
  */
 package org.cryptonode.jncryptor;
 
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FilterInputStream;
 import java.io.PushbackInputStream;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -29,7 +29,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.TeeInputStream;
 
 /**
  * Reads RNCryptor-format data in a stream fashion.
@@ -48,7 +47,6 @@ public class AES256JNCryptorInputStream extends InputStream {
   private PushbackInputStream pushbackInputStream;
   private TrailerInputStream trailerIn;
   private CipherInputStream decryptionStream;
-  private ByteArrayOutputStream rawOutputStream;
   private Mac mac;
 
   /**
@@ -162,22 +160,18 @@ public class AES256JNCryptorInputStream extends InputStream {
       decryptCipher.init(Cipher.DECRYPT_MODE, decryptionKey,
           new IvParameterSpec(iv));
 
-      // The available() method is far from perfect, but it is better than no
-      // guess at all.
-      rawOutputStream = new ByteArrayOutputStream(trailerIn.available());
-
-      // The decryption stream will write the non-decrypted bytes to the mac
-      // stream
-      decryptionStream = new CipherInputStream(new TeeInputStream(trailerIn,
-          rawOutputStream), decryptCipher);
-
-      pushbackInputStream = new PushbackInputStream(decryptionStream, 1);
-
       mac = Mac.getInstance(AES256JNCryptor.HMAC_ALGORITHM);
       mac.init(hmacKey);
 
       // MAC the header
       mac.update(headerData);
+
+      // The decryption stream will write the non-decrypted bytes to the mac
+      // stream
+      decryptionStream = new CipherInputStream(new MacUpdateInputStream(trailerIn, mac), decryptCipher);
+
+      pushbackInputStream = new PushbackInputStream(decryptionStream, 1);
+
 
     } catch (GeneralSecurityException e) {
       throw new IOException("Failed to initiate cipher.", e);
@@ -291,10 +285,6 @@ public class AES256JNCryptorInputStream extends InputStream {
     if (b == END_OF_STREAM) {
       handleEndOfStream();
     } else {
-      // update mac
-      mac.update(rawOutputStream.toByteArray());
-      rawOutputStream.reset();
-
       // Have we reached the end of the stream?
       int c = pushbackInputStream.read();
       if (c == END_OF_STREAM) {
@@ -349,4 +339,28 @@ public class AES256JNCryptorInputStream extends InputStream {
       in.close();
     }
   }
+
+  private static class MacUpdateInputStream extends FilterInputStream
+  {
+    Mac mac;
+    private MacUpdateInputStream(InputStream in, Mac mac) {
+      super(in);
+      this.mac = mac;
+    }
+
+    public int read() throws IOException {
+      int b = super.read();
+      if (b >= 0)
+        mac.update((byte)b);
+      return b;
+    }
+
+    public int read(byte[] b, int off, int len) throws IOException {
+      int n = super.read(b, off, len);
+      if (n > 0)
+        mac.update(b, off, n);
+      return n;
+    }
+  }
+
 }
