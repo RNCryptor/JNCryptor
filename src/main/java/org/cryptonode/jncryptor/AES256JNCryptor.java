@@ -368,7 +368,7 @@ public class AES256JNCryptor implements JNCryptor {
    *          the number of bytes to return
    * @return random bytes
    */
-  private static byte[] getSecureRandomData(int length) {
+  static byte[] getSecureRandomData(int length) {
     byte[] result = new byte[length];
     SECURE_RANDOM.nextBytes(result);
     return result;
