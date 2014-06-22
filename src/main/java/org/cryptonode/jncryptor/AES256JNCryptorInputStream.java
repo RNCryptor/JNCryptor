@@ -297,7 +297,6 @@ public class AES256JNCryptorInputStream extends InputStream {
 
       // Have we reached the end of the stream?
       int c = pushbackInputStream.read();
-      rawOutputStream.reset(); // don't want to actually keep this byte
       if (c == END_OF_STREAM) {
         handleEndOfStream();
       } else {
