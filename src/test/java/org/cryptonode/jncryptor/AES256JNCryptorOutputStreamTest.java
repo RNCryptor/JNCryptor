@@ -145,7 +145,7 @@ public class AES256JNCryptorOutputStreamTest {
     byte[] buffer = new byte[16383];
     int offset = 0;
     while (offset < plaintext.length) {
-        int n = Math.max(16383, plaintext.length - offset);
+        int n = Math.min(16383, plaintext.length - offset);
         cryptorStream.write(plaintext, offset, n);
         offset += n;
     }
