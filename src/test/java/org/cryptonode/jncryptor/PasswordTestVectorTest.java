@@ -17,6 +17,8 @@ package org.cryptonode.jncryptor;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +51,7 @@ public class PasswordTestVectorTest {
   }
 
   @Test
-  public void testKeyVector() throws Exception {
+  public void testPasswordVector() throws Exception {
     AES256JNCryptor cryptor = new AES256JNCryptor();
 
     assertEquals("Test not suitable for current version.",
@@ -59,5 +61,39 @@ public class PasswordTestVectorTest {
         .getPassword().toCharArray(), vector.getEncryptionSalt(), vector
         .getHmacSalt(), vector.getIv());
     assertArrayEquals(vector.getTitle(), vector.getCiphertext(), ciphertext);
+  }
+
+  @Test
+  public void testPasswordVectorStreamingDecryption() throws Exception {
+    ByteArrayInputStream is = new ByteArrayInputStream(vector.getCiphertext());
+    AES256JNCryptorInputStream testStream =
+        new AES256JNCryptorInputStream(is, vector.getPassword().toCharArray());
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int len;
+    while ((len = testStream.read(buffer)) != -1) {
+        baos.write(buffer, 0, len);
+    }
+    testStream.close();
+    assertArrayEquals(vector.getTitle(), vector.getPlaintext(), baos.toByteArray());
+  }
+
+  @Test
+  public void testPasswordVectorStreamingEncryption() throws Exception {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    AES256JNCryptorOutputStream testStream =
+        new AES256JNCryptorOutputStream(os, vector.getPassword().toCharArray(),
+            vector.getEncryptionSalt(), vector.getHmacSalt(), vector.getIv());
+
+    ByteArrayInputStream is = new ByteArrayInputStream(vector.getPlaintext());
+
+    byte[] buffer = new byte[1024];
+    int len;
+    while ((len = is.read(buffer)) != -1) {
+        testStream.write(buffer, 0, len);
+    }
+    testStream.close();
+    assertArrayEquals(vector.getTitle(), vector.getCiphertext(), os.toByteArray());
   }
 }
