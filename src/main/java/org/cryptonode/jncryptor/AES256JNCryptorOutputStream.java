@@ -399,7 +399,6 @@ public class AES256JNCryptorOutputStream extends FilterOutputStream
         {
             super(out);
             this.mac = mac;
-            mac.reset();
         }
         
         OutputStream getFinalOut() {
