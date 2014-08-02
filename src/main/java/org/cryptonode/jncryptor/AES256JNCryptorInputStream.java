@@ -46,7 +46,6 @@ public class AES256JNCryptorInputStream extends InputStream {
 
   private PushbackInputStream pushbackInputStream;
   private TrailerInputStream trailerIn;
-  private CipherInputStream decryptionStream;
   private Mac mac;
 
   /**
@@ -173,9 +172,8 @@ public class AES256JNCryptorInputStream extends InputStream {
 
       // The decryption stream will write the non-decrypted bytes to the mac
       // stream
-      decryptionStream = new CipherInputStream(new MacUpdateInputStream(trailerIn, mac), decryptCipher);
-
-      pushbackInputStream = new PushbackInputStream(decryptionStream, 1);
+      pushbackInputStream = new PushbackInputStream(new CipherInputStream(
+          new MacUpdateInputStream(trailerIn, mac), decryptCipher), 1);
 
 
     } catch (GeneralSecurityException e) {
@@ -331,11 +329,7 @@ public class AES256JNCryptorInputStream extends InputStream {
     try {
       closeIfNotNull(pushbackInputStream);
     } finally {
-      try {
-        closeIfNotNull(decryptionStream);
-      } finally {
-        closeIfNotNull(trailerIn);
-      }
+      closeIfNotNull(trailerIn);
     }
   }
 
