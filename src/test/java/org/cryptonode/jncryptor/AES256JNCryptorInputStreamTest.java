@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
@@ -123,7 +124,41 @@ public class AES256JNCryptorInputStreamTest {
   }  
 
   /**
-   * Test reading of mismatched data (e.g. encrypte using keys, decrypted with
+   * Test reading using read(byte[]) method, with larger data amount and buffers,
+   * testing Issue #6.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testUsingReadByteArrayLargeBufferIssue6() throws Exception {
+    byte[] plaintext = getRandomBytes(50000);
+
+    final String password = "Testing1234";
+
+    JNCryptor cryptor = new AES256JNCryptor();
+    byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
+
+    InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
+        data), password.toCharArray());
+
+    try {
+      byte[] buffer = new byte[16383];
+      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+      int len;
+      do {
+        len = in.read(buffer);
+        if (len > 0)
+          outStream.write(buffer, 0, len);
+      } while (len >= 0);
+      byte[] result = outStream.toByteArray();
+      assertArrayEquals(plaintext, result);
+    } finally {
+      in.close();
+    }
+  }
+
+  /**
+   * Test reading of mismatched data (e.g. encrypted using keys, decrypted with
    * password).
    * 
    * @throws Exception
