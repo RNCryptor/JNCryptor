@@ -15,12 +15,11 @@
 package org.cryptonode.jncryptor;
 
 import java.io.EOFException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FilterInputStream;
 import java.io.PushbackInputStream;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -319,7 +318,7 @@ public class AES256JNCryptorInputStream extends InputStream {
     byte[] originalHMAC = trailerIn.getTrailer();
     byte[] calculateHMAC = mac.doFinal();
 
-    if (!Arrays.equals(originalHMAC, calculateHMAC)) {
+    if (! AES256JNCryptor.arraysEqual(originalHMAC, calculateHMAC)) {
       throw new StreamIntegrityException("MAC validation failed.");
     }
   }

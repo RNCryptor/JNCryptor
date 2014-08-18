@@ -15,9 +15,7 @@
 
 package org.cryptonode.jncryptor;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Random;
 
@@ -319,5 +317,13 @@ public class AES256JNCryptorTest {
     cryptor.setPBKDFIterations(1);
     cryptor.decryptData(ciphertext, password.toCharArray());
 
+  }
+  
+  @Test
+  public void testArrayEquals() throws Exception {
+    assertTrue(AES256JNCryptor.arraysEqual(new byte[] {1,2,3}, new byte[] {1,2,3}));
+    assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2,3}, new byte[] {1,2}));
+    assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2}, new byte[] {1,2,3}));
+    assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2,3}, new byte[] {1,2,4}));
   }
 }

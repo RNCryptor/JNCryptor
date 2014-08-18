@@ -18,7 +18,6 @@ package org.cryptonode.jncryptor;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -180,7 +179,7 @@ public class AES256JNCryptor implements JNCryptor {
       mac.init(hmacKey);
       byte[] hmacValue = mac.doFinal(aesCiphertext.getDataToHMAC());
 
-      if (!Arrays.equals(hmacValue, aesCiphertext.getHmac())) {
+      if (!arraysEqual(hmacValue, aesCiphertext.getHmac())) {
         throw new InvalidHMACException("Incorrect HMAC value.");
       }
 
@@ -219,7 +218,7 @@ public class AES256JNCryptor implements JNCryptor {
       mac.init(hmacKey);
       byte[] hmacValue = mac.doFinal(aesCiphertext.getDataToHMAC());
 
-      if (!Arrays.equals(hmacValue, aesCiphertext.getHmac())) {
+      if (!arraysEqual(hmacValue, aesCiphertext.getHmac())) {
         throw new InvalidHMACException("Incorrect HMAC value.");
       }
 
@@ -440,5 +439,27 @@ public class AES256JNCryptor implements JNCryptor {
         "Data must be at least one byte long to read version number.");
 
     return data[0];
+  }
+  
+  /**
+   * Compares arrays for equality in constant time. This avoids
+   * certain types of timing attacks.
+   * 
+   * @param array1 the first array
+   * @param array2 the second array
+   * @return whether the arrays match
+   */
+  static boolean arraysEqual(byte[] array1, byte[] array2) {
+    if (array1.length != array2.length) {
+      return false;
+    }
+    
+    boolean isEqual = true;
+    for (int i = 0; i < array1.length; i++) {
+      if (array1[i] != array2[i]) {
+        isEqual = false;
+      }
+    }
+    return isEqual;
   }
 }
