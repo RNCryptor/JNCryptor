@@ -31,7 +31,10 @@ import javax.crypto.spec.IvParameterSpec;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Reads RNCryptor-format data in a stream fashion.
+ * Reads RNCryptor-format data in a stream fashion. This class only
+ * supports the v3 data format.
+ * 
+ * @since 1.1.0
  */
 public class AES256JNCryptorInputStream extends InputStream {
 
