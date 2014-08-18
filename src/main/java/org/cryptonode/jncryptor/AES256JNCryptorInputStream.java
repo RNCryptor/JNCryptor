@@ -59,7 +59,7 @@ public class AES256JNCryptorInputStream extends InputStream {
    * @param password
    *          the password
    */
-  AES256JNCryptorInputStream(InputStream in, char[] password) {
+  public AES256JNCryptorInputStream(InputStream in, char[] password) {
     isPasswordEncrypted = true;
     this.password = password;
     this.in = in;
@@ -75,7 +75,7 @@ public class AES256JNCryptorInputStream extends InputStream {
    * @param hmacKey
    *          the key to calculate the HMAC with
    */
-  AES256JNCryptorInputStream(InputStream in, SecretKey decryptionKey,
+  public AES256JNCryptorInputStream(InputStream in, SecretKey decryptionKey,
       SecretKey hmacKey) {
     isPasswordEncrypted = false;
     this.decryptionKey = decryptionKey;
