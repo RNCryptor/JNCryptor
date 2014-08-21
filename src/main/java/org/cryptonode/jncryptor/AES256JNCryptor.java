@@ -87,14 +87,36 @@ public class AES256JNCryptor implements JNCryptor {
    */
   static final String HMAC_ALGORITHM = "HmacSHA256";
   
-  private static final String AES_NAME = "AES";
-  private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
-  private static final int PBKDF_DEFAULT_ITERATIONS = 10000;
-  private static final int VERSION = 3;
-  private static final int AES_256_KEY_SIZE = 256 / 8;
+  /**
+   * AES algorithm name.
+   */
+  static final String AES_NAME = "AES";
+  
+  /**
+   * The key derivation algorith name
+   */
+  static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
+  
+  /**
+   * The default number of PBKDF2 iterations.
+   */
+  static final int PBKDF_DEFAULT_ITERATIONS = 10000;
+  
+  /**
+   * The data format version number.
+   */
+  static final int VERSION = 3;
+  
+  /**
+   * The size of an AES key (useful constant).
+   */
+  static final int AES_256_KEY_SIZE = 256 / 8;
+  
   private static final int AES_BLOCK_SIZE = 16;
 
-  // Salt length exposed as package private to aid unit testing
+  /**
+   * Size of the salt (in bytes)
+   */
   static final int SALT_LENGTH = 8;
 
   // SecureRandom is threadsafe
@@ -367,7 +389,7 @@ public class AES256JNCryptor implements JNCryptor {
    *          the number of bytes to return
    * @return random bytes
    */
-  private static byte[] getSecureRandomData(int length) {
+  static byte[] getSecureRandomData(int length) {
     byte[] result = new byte[length];
     SECURE_RANDOM.nextBytes(result);
     return result;
