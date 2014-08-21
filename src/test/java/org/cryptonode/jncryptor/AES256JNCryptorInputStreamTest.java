@@ -331,9 +331,9 @@ public class AES256JNCryptorInputStreamTest {
     byte[] data = cryptor.encryptData(plaintext, password.toCharArray());
     
     InputStream in = new AES256JNCryptorInputStream(new ByteArrayInputStream(
-        data), password.toCharArray());
-    
+        data), password.toCharArray());    
     assertFalse(in.markSupported());
+    in.close();
   }
 
   private static byte[] getRandomBytes(int length) {
