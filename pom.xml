@@ -49,14 +49,13 @@
   </licenses>
 
   <dependencies>
+    <!-- Test dependencies -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.4</version>
-    </dependency>
-
-
-    <!-- Test dependencies -->
+      <scope>test</scope>
+    </dependency>    
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>

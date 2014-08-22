@@ -18,8 +18,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
 /**
  * A wrapper for an input stream that contains trailer data.
  */
@@ -67,7 +65,7 @@ public class TrailerInputStream extends InputStream {
       return;
     }
 
-    int bytesRead = IOUtils.read(in, trailerBuffer);
+    int bytesRead = StreamUtils.readAllBytes(in, trailerBuffer);
     if (bytesRead != trailerBuffer.length) {
       throw new EOFException(String.format(
           "Trailer size was %d bytes but stream only contained %d bytes.",

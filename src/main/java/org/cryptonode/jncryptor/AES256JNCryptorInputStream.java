@@ -27,8 +27,6 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import org.apache.commons.io.IOUtils;
-
 /**
  * Reads RNCryptor-format data in a stream fashion. This class only
  * supports the v3 data format.
@@ -114,7 +112,7 @@ public class AES256JNCryptorInputStream extends InputStream {
     }
 
     byte[] headerData = new byte[headerDataSize];
-    IOUtils.readFully(in, headerData); // throws EOF if insufficient data
+    StreamUtils.readAllBytesOrFail(in, headerData); // throws EOF if insufficient data
 
     int offset = 0;
     byte version = headerData[offset++];
