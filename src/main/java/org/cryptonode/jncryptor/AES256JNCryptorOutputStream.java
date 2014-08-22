@@ -27,7 +27,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Writes RNCryptor-format (version 3) data in a stream fashion. The stream must
- * be closed to properly write the data.
+ * be closed to finish writing the data and output the HMAC value.
  */
 public class AES256JNCryptorOutputStream extends OutputStream {
 

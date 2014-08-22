@@ -29,7 +29,8 @@ import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Reads RNCryptor-format data in a stream fashion. This class only
- * supports the v3 data format.
+ * supports the v3 data format. The entire stream must be read in order
+ * to trigger the validation of the HMAC value.
  * 
  * @since 1.1.0
  */
