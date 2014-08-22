@@ -14,7 +14,7 @@
  */
 package org.cryptonode.jncryptor;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AES256JNCryptorOutputStreamTest {
     byte[] result = cryptor.decryptData(encrypted, password.toCharArray());
     assertArrayEquals(plaintext, result);
   }
-  
+
   /**
    * Test writing using write(byte b) method
    * 
@@ -67,7 +67,7 @@ public class AES256JNCryptorOutputStreamTest {
     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     AES256JNCryptorOutputStream cryptorStream = new AES256JNCryptorOutputStream(
         byteStream, password.toCharArray());
-    
+
     for (byte b : plaintext) {
       cryptorStream.write(b);
     }
@@ -79,7 +79,7 @@ public class AES256JNCryptorOutputStreamTest {
 
     byte[] result = cryptor.decryptData(encrypted, password.toCharArray());
     assertArrayEquals(plaintext, result);
-  }  
+  }
 
   /**
    * Test reading using SecretKey constructor.
@@ -220,6 +220,17 @@ public class AES256JNCryptorOutputStreamTest {
     AES256JNCryptorOutputStream cryptorStream = new AES256JNCryptorOutputStream(
         byteStream, new char[0]);
     cryptorStream.close();
+  }
+
+  @Test
+  public void testBadIterations() throws Exception {
+    try {
+      new AES256JNCryptorOutputStream(new ByteArrayOutputStream(),
+          "foo".toCharArray(), -1);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
   }
 
   private static byte[] getRandomBytes(int length) {

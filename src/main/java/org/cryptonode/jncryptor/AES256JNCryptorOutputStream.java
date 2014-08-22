@@ -80,6 +80,7 @@ public class AES256JNCryptorOutputStream extends OutputStream {
     Validate.notNull(out, "Output stream cannot be null.");
     Validate.notNull(password, "Password cannot be null.");
     Validate.isTrue(password.length > 0, "Password cannot be empty.");
+    Validate.isTrue(iterations > 0, "Iterations must be greater than zero.");
 
     AES256JNCryptor cryptor = new AES256JNCryptor(iterations);
 
