@@ -21,7 +21,7 @@ import java.io.InputStream;
 /**
  * A wrapper for an input stream that contains trailer data.
  */
-public class TrailerInputStream extends InputStream {
+class TrailerInputStream extends InputStream {
 
   /**
    * Byte value indicating the end of stream.
