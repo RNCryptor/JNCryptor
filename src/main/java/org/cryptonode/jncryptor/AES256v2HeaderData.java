@@ -14,10 +14,7 @@
  */
 package org.cryptonode.jncryptor;
 
-/**
- * 
- */
-public class AES256v2HeaderData {
+class AES256v2HeaderData {
   private static final int SIZE_WITH_PASSWORD = AES256v3Ciphertext.HEADER_SIZE
       + AES256v3Ciphertext.ENCRYPTION_SALT_LENGTH
       + AES256v3Ciphertext.HMAC_SALT_LENGTH + AES256v3Ciphertext.AES_BLOCK_SIZE;
@@ -38,7 +35,7 @@ public class AES256v2HeaderData {
    * @throws InvalidDataException
    * 
    */
-  public AES256v2HeaderData(byte[] data) throws InvalidDataException {
+  AES256v2HeaderData(byte[] data) throws InvalidDataException {
     Validate.notNull(data, "Data cannot be null.");
 
     // Need the header to be able to determine the length
