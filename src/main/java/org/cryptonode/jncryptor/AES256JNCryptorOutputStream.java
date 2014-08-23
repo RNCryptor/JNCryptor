@@ -170,6 +170,14 @@ public class AES256JNCryptorOutputStream extends OutputStream {
     }
   }
 
+  /**
+   * Writes one byte to the encrypted output stream.
+   * 
+   * @param b
+   *          the byte to write
+   * @throws IOException
+   *           if an I/O error occurs
+   */
   @Override
   public void write(int b) throws IOException {
     if (!writtenHeader) {
@@ -179,6 +187,18 @@ public class AES256JNCryptorOutputStream extends OutputStream {
     cipherStream.write(b);
   }
 
+  /**
+   * Writes bytes to the encrypted output stream.
+   * 
+   * @param b
+   *          a buffer of bytes to write
+   * @param off
+   *          the offset into the buffer
+   * @param len
+   *          the number of bytes to write (starting from the offset)
+   * @throws IOException
+   *           if an I/O error occurs
+   */
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
     if (!writtenHeader) {
@@ -188,6 +208,13 @@ public class AES256JNCryptorOutputStream extends OutputStream {
     cipherStream.write(b, off, len);
   }
 
+  /**
+   * Closes the stream. This causes the HMAC calculation to be concluded and
+   * written to the output.
+   * 
+   * @throws IOException
+   *           if an I/O error occurs
+   */
   @Override
   public void close() throws IOException {
     cipherStream.close();
