@@ -8,6 +8,7 @@ News
 
 | Date        | News           | 
 | ------------- | ------------- | 
+| 2014-08-23      | Version 1.1.0 released. Adds support for streaming operations, plus constant time HMAC calculation. Apache Commons IO is no longer a dependency.  |
 | 2014-01-19      | Version 1.0.1 released. Fixes issue #4, which caused the wrong version number to be output in some situations.  |
 | 2014-01-13      | Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.  |
 | 2014-01-13      | Projected moved to GitHub. |
@@ -29,7 +30,7 @@ You can download binaries, documentation and source from the Releases page.  Mav
 <dependency>
     <groupId>org.cryptonode.jncryptor</groupId>
     <artifactId>jncryptor</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ````
 
@@ -64,7 +65,7 @@ There are plans afoot to include the ieration count in the data format (hopefull
 Android
 -------
 
-JNCryptor can be used in Android applications. Download the latest binary release and place the JAR in the `libs` folder for your project.
+JNCryptor can be used in Android applications, v2.3.3 (Android 10) and above. Download the latest binary release and place the JAR in the `libs` folder for your project.
 
 Please note that very little Android testing has been completed and some users report compatibility problems with old versions of Android (see the Issues page). If I can find an easy way to do so, I'll start increasing my Android testing and improve the library accordingly. 
 
