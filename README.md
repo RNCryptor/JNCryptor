@@ -6,6 +6,9 @@ JNCryptor is an easy-to-use library for encrypting data with AES. It was ported 
 News
 ----
 
+Follow [@JNCryptor](https://twitter.com/JNCryptor) for notifications of releases.
+
+
 | Date        | News           | 
 | ------------- | ------------- | 
 | 2014-08-23      | Version 1.1.0 released. Adds support for streaming operations, plus constant time HMAC calculation. Apache Commons IO is no longer a dependency.  |
