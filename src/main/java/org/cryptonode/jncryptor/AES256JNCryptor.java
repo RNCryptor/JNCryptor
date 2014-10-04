@@ -168,6 +168,7 @@ public class AES256JNCryptor implements JNCryptor {
     }
   }
 
+  @Override
   public synchronized int getPBKDFIterations() {
     return iterations;
   }
@@ -344,28 +345,11 @@ public class AES256JNCryptor implements JNCryptor {
 
     SecretKey encryptionKey = keyForPassword(password, encryptionSalt);
     SecretKey hmacKey = keyForPassword(password, hmacSalt);
+    
+    return encryptData(plaintext,
+        new PasswordKey(encryptionKey, encryptionSalt), new PasswordKey(
+            hmacKey, hmacSalt), iv);
 
-    try {
-      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
-      cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, new IvParameterSpec(iv));
-      byte[] ciphertext = cipher.doFinal(plaintext);
-
-      AES256v3Ciphertext output = new AES256v3Ciphertext(encryptionSalt,
-          hmacSalt, iv, ciphertext);
-
-      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
-      mac.init(hmacKey);
-      byte[] hmac = mac.doFinal(output.getDataToHMAC());
-      output.setHmac(hmac);
-      return output.getRawData();
-
-    } catch (InvalidKeyException e) {
-      throw new CryptorException(
-          "Caught InvalidKeyException. Do you have unlimited strength jurisdiction files installed?",
-          e);
-    } catch (GeneralSecurityException e) {
-      throw new CryptorException("Failed to generate ciphertext.", e);
-    }
   }
 
   @Override
@@ -483,5 +467,48 @@ public class AES256JNCryptor implements JNCryptor {
       }
     }
     return isEqual;
+  }
+
+  @Override
+  public PasswordKey getPasswordKey(char[] password) throws CryptorException {
+    Validate.notNull(password, "Password cannot be null.");
+    Validate.isTrue(password.length > 0, "Password cannot be empty.");    
+    
+    byte[] salt = new byte[SALT_LENGTH];
+    SECURE_RANDOM.nextBytes(salt);
+    SecretKey secretKey = keyForPassword(password, salt);
+    return new PasswordKey(secretKey, salt);
+  }
+  
+  byte[] encryptData(byte[] plaintext, PasswordKey encryptionKey, PasswordKey hmacKey, byte[] iv) throws CryptorException {
+    try {
+      Cipher cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
+      cipher.init(Cipher.ENCRYPT_MODE, encryptionKey.getKey(), new IvParameterSpec(iv));
+      byte[] ciphertext = cipher.doFinal(plaintext);
+
+      AES256v3Ciphertext output = new AES256v3Ciphertext(encryptionKey.getSalt(),
+          hmacKey.getSalt(), iv, ciphertext);
+
+      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(hmacKey.getKey());
+      byte[] hmac = mac.doFinal(output.getDataToHMAC());
+      output.setHmac(hmac);
+      return output.getRawData();
+
+    } catch (InvalidKeyException e) {
+      throw new CryptorException(
+          "Caught InvalidKeyException. Do you have unlimited strength jurisdiction files installed?",
+          e);
+    } catch (GeneralSecurityException e) {
+      throw new CryptorException("Failed to generate ciphertext.", e);
+    }    
+  }
+
+  @Override
+  public byte[] encryptData(byte[] plaintext, PasswordKey encryptionKey,
+      PasswordKey hmacKey) throws CryptorException {
+    byte[] iv = new byte[AES_BLOCK_SIZE];
+    SECURE_RANDOM.nextBytes(iv);
+    return encryptData(plaintext, encryptionKey, hmacKey, iv);
   }
 }

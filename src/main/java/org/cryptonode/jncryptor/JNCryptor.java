@@ -40,12 +40,44 @@ public interface JNCryptor {
       throws CryptorException;
 
   /**
+   * Generates a key from a password and a random salt.
+   * 
+   * @param password
+   *          password to use for PBKDF. Cannot be empty or <code>null</code>.
+   * @return an object containing the key and the salt
+   * @throws CryptorException
+   * @since 1.2.0
+   */
+  PasswordKey getPasswordKey(char[] password) throws CryptorException;
+
+  /**
+   * Encrypts data using pre-computed keys, producing data in the password
+   * output format (i.e. including salt values).
+   * 
+   * @param plaintext
+   *          the plaintext to encrypt
+   * @param encryptionKey
+   *          the pre-computed encryption key
+   * @param hmacKey
+   *          the pre-computer HMAC key
+   * @return the ciphertext, in the format described at <a href=
+   *         "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *         >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-
+   *         Spec-v3.md</a>
+   * @throws CryptorException
+   * @since 1.2.0
+   */
+  byte[] encryptData(byte[] plaintext, PasswordKey encryptionKey,
+      PasswordKey hmacKey) throws CryptorException;
+
+  /**
    * Decrypts data with the supplied password.
    * 
    * @param ciphertext
-   *          data to decrypt. Must be in the format described at <a
-   *          href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
-   *          >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   *          data to decrypt. Must be in the format described at <a href=
+   *          "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *          >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor
+   *          -Spec-v3.md</a>
    * @param password
    *          password to use for the decryption. Cannot be empty or
    *          <code>null</code>.
@@ -59,9 +91,10 @@ public interface JNCryptor {
    * Decrypts data with the supplied keys.
    * 
    * @param ciphertext
-   *          data to decrypt. Must be in the format described at <a
-   *          href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
-   *          >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   *          data to decrypt. Must be in the format described at <a href=
+   *          "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *          >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor
+   *          -Spec-v3.md</a>
    * @param decryptionKey
    *          the key to decrypt with
    * @param hmacKey
@@ -80,9 +113,10 @@ public interface JNCryptor {
    * @param password
    *          password to use for the encryption. Cannot be empty or
    *          <code>null</code>.
-   * @return the ciphertext, in the format described at <a
-   *         href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
-   *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   * @return the ciphertext, in the format described at <a href=
+   *         "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *         >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-
+   *         Spec-v3.md</a>
    */
   byte[] encryptData(byte[] plaintext, char[] password) throws CryptorException;
 
@@ -95,9 +129,10 @@ public interface JNCryptor {
    *          key to use for encryption
    * @param hmacKey
    *          key to use for computing the HMAC
-   * @return the ciphertext, in the format described at <a
-   *         href="https://github.com/rnapier/RNCryptor/wiki/Data-Format"
-   *         >https://github.com/rnapier/RNCryptor/wiki/Data-Format</a>
+   * @return the ciphertext, in the format described at <a href=
+   *         "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *         >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-
+   *         Spec-v3.md</a>
    */
   byte[] encryptData(byte[] plaintext, SecretKey encryptionKey,
       SecretKey hmacKey) throws CryptorException;

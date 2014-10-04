@@ -17,6 +17,7 @@ package org.cryptonode.jncryptor;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.crypto.SecretKey;
@@ -325,5 +326,36 @@ public class AES256JNCryptorTest {
     assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2,3}, new byte[] {1,2}));
     assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2}, new byte[] {1,2,3}));
     assertFalse(AES256JNCryptor.arraysEqual(new byte[] {1,2,3}, new byte[] {1,2,4}));
+  }
+  
+  @Test
+  public void testPasswordKeyUsesRandomSalts() throws Exception {
+    final char[] password = "foo".toCharArray();
+    PasswordKey key1 = new AES256JNCryptor().getPasswordKey(password);
+    PasswordKey key2 = new AES256JNCryptor().getPasswordKey(password);
+    
+    assertFalse(Arrays.equals(key1.getSalt(), key2.getSalt()));
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testPasswordKeyNullPassword() throws Exception {
+    new AES256JNCryptor().getPasswordKey(null);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testPasswordKeyEmptyPassword() throws Exception {
+    new AES256JNCryptor().getPasswordKey(new char[0]);
+  }
+  
+  @Test
+  public void testPasswordKeyEncryption() throws Exception {
+    char[] password = "foo".toCharArray();
+    JNCryptor cryptor = new AES256JNCryptor();
+    PasswordKey encryptionKey = cryptor.getPasswordKey(password);
+    PasswordKey hmacKey = cryptor.getPasswordKey(password);
+    
+    final byte[] plaintext = "Hello, World!".getBytes();
+    final byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
+    assertArrayEquals(plaintext, cryptor.decryptData(ciphertext, password));
   }
 }
