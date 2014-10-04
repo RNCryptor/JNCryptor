@@ -33,5 +33,19 @@ class Validate {
       throw new NullPointerException(String.format(msg, args));
     }
   }
+  
+  /**
+   * Tests object is not null and is of correct length.
+   * 
+   * @param object
+   * @param length
+   * @param name
+   */
+  static void isCorrectLength(byte[] object, int length, String name) {
+    Validate.notNull(object, "%s cannot be null.", name);
+
+    Validate.isTrue(object.length == length,
+        "%s should be %d bytes, found %d bytes.", name, length, object.length);
+  }
 
 }

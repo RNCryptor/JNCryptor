@@ -358,4 +358,62 @@ public class AES256JNCryptorTest {
     final byte[] ciphertext = cryptor.encryptData(plaintext, encryptionKey, hmacKey);
     assertArrayEquals(plaintext, cryptor.decryptData(ciphertext, password));
   }
+  
+  @Test
+  public void testInvalidArgumentsToEncryptWithIVAndSalts() throws Exception {
+    final byte[] plaintext = new byte[1];
+    final char[] goodPassword = new char[1];
+    final char[] badPassword = new char[0];
+    final byte[] goodSaltArray = new byte[AES256JNCryptor.SALT_LENGTH];
+    final byte[] badSaltArray = new byte[AES256JNCryptor.SALT_LENGTH - 1];
+    final byte[] goodIVArray = new byte[AES256JNCryptor.AES_BLOCK_SIZE];
+    final byte[] badIVArray = new byte[AES256JNCryptor.AES_BLOCK_SIZE - 1];
+    
+    JNCryptor cryptor = new AES256JNCryptor();
+    
+    try {
+      cryptor.encryptData(null, goodPassword, goodSaltArray, goodSaltArray, goodIVArray);
+      fail();
+    } catch (NullPointerException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, null, goodSaltArray, goodSaltArray, goodIVArray);
+      fail();
+    } catch (NullPointerException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, null, goodSaltArray, goodIVArray);
+      fail();
+    } catch (NullPointerException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, goodSaltArray, null, goodIVArray);
+      fail();
+    } catch (NullPointerException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, goodSaltArray, goodSaltArray, null);
+      fail();
+    } catch (NullPointerException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, badPassword, goodSaltArray, goodSaltArray, goodIVArray);
+      fail();
+    } catch (IllegalArgumentException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, badSaltArray, goodSaltArray, goodIVArray);
+      fail();
+    } catch (IllegalArgumentException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, goodSaltArray, badSaltArray, goodIVArray);
+      fail();
+    } catch (IllegalArgumentException e) {}
+    
+    try {
+      cryptor.encryptData(plaintext, goodPassword, goodSaltArray, goodSaltArray, badIVArray);
+      fail();
+    } catch (IllegalArgumentException e) {}
+  }
 }

@@ -69,6 +69,30 @@ public interface JNCryptor {
    */
   byte[] encryptData(byte[] plaintext, PasswordKey encryptionKey,
       PasswordKey hmacKey) throws CryptorException;
+  
+  /**
+   * Encrypts data with the supplied password, salt values and IV.
+   * 
+   * @param plaintext
+   *          the plaintext
+   * @param password
+   *          the password (cannot be <code>null</code> or empty)
+   * @param encryptionSalt
+   *          eight bytes of random salt value
+   * @param hmacSalt
+   *          eight bytes of random salt value
+   * @param iv
+   *          sixteen byte AES IV
+   * @return the ciphertext, in the format described at <a href=
+   *         "https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-Spec-v3.md"
+   *         >https://github.com/RNCryptor/RNCryptor-Spec/blob/master/RNCryptor-
+   *         Spec-v3.md</a>
+   * @throws CryptorException
+   *           if an error occurred
+   * @since 1.2.0
+   */
+  byte[] encryptData(byte[] plaintext, char[] password, byte[] encryptionSalt,
+      byte[] hmacSalt, byte[] iv) throws CryptorException;  
 
   /**
    * Decrypts data with the supplied password.

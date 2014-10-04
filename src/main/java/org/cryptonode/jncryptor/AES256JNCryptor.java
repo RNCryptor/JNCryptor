@@ -112,7 +112,10 @@ public class AES256JNCryptor implements JNCryptor {
    */
   static final int AES_256_KEY_SIZE = 256 / 8;
   
-  private static final int AES_BLOCK_SIZE = 16;
+  /**
+   * AES block size in bytes.
+   */
+  static final int AES_BLOCK_SIZE = 16;
 
   /**
    * Size of the salt (in bytes)
@@ -323,33 +326,25 @@ public class AES256JNCryptor implements JNCryptor {
     }
   }
 
-  /**
-   * Encrypts plaintext data, 256-bit AES CBC-mode with PKCS#5 padding.
-   * 
-   * @param plaintext
-   *          the plaintext
-   * @param password
-   *          the password (can be <code>null</code> or empty)
-   * @param encryptionSalt
-   *          eight bytes of random salt value
-   * @param hmacSalt
-   *          eight bytes of random salt value
-   * @param iv
-   *          sixteen bytes of AES IV
-   * @return a formatted ciphertext
-   * @throws CryptorException
-   *           if an error occurred
-   */
-  byte[] encryptData(byte[] plaintext, char[] password, byte[] encryptionSalt,
+  @Override
+  public byte[] encryptData(byte[] plaintext, char[] password, byte[] encryptionSalt,
       byte[] hmacSalt, byte[] iv) throws CryptorException {
 
+    Validate.notNull(plaintext, "Plaintext cannot be null.");
+
+    Validate.notNull(password, "Password cannot be null.");
+    Validate.isTrue(password.length > 0, "Password cannot be empty.");
+    
+    Validate.isCorrectLength(encryptionSalt, SALT_LENGTH, "Encryption salt");
+    Validate.isCorrectLength(hmacSalt, SALT_LENGTH, "HMAC salt");
+    Validate.isCorrectLength(iv, AES_BLOCK_SIZE, "IV");
+    
     SecretKey encryptionKey = keyForPassword(password, encryptionSalt);
     SecretKey hmacKey = keyForPassword(password, hmacSalt);
     
     return encryptData(plaintext,
         new PasswordKey(encryptionKey, encryptionSalt), new PasswordKey(
             hmacKey, hmacSalt), iv);
-
   }
 
   @Override
