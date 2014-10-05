@@ -162,7 +162,7 @@ public interface JNCryptor {
       SecretKey hmacKey) throws CryptorException;
 
   /**
-   * Returns the version number of the data format supported by this
+   * Returns the version number of the data format produced by this
    * {@code JNCryptor}.
    * 
    * @return the version number
