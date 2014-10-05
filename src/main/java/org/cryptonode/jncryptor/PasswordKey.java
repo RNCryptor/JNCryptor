@@ -17,9 +17,11 @@ package org.cryptonode.jncryptor;
 import javax.crypto.SecretKey;
 
 /**
- * Stores a secret key alongside the salt that was used during the key
+ * <p>Stores a secret key alongside the salt that was used during the key
  * derivation. Storing and reusing a {@code PasswordKey} object can improve
- * performance.
+ * performance.</p>
+ * 
+ * <p>Create instances of this class using {@link JNCryptor#getPasswordKey(char[])}.</p>
  * 
  * @since 1.2.0
  */
