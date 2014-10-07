@@ -56,7 +56,7 @@ class TestVectorReader {
   }
 
   static List<KDFTestVector> readKDFVectors() throws IOException {
-    List<String> lines = readLinesFromTestResource("/kdf");
+    List<String> lines = readLinesFromTestResource("/kdf-v3");
 
     final Iterator<String> iterator = lines.iterator();
 
@@ -86,7 +86,7 @@ class TestVectorReader {
   }
 
   static List<KeyTestVector> readKeyVectors() throws IOException {
-    List<String> lines = readLinesFromTestResource("/key");
+    List<String> lines = readLinesFromTestResource("/key-v3");
 
     final Iterator<String> iterator = lines.iterator();
 
@@ -121,7 +121,7 @@ class TestVectorReader {
   }
 
   static List<PasswordTestVector> readPasswordVectors() throws IOException {
-    List<String> lines = readLinesFromTestResource("/password");
+    List<String> lines = readLinesFromTestResource("/password-v3");
 
     final Iterator<String> iterator = lines.iterator();
 
