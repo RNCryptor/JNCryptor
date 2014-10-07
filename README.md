@@ -3,6 +3,23 @@ JNCryptor
 
 JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/RNCryptor/RNCryptor) library for iOS.
 
+Getting JNCryptor
+-----------------
+
+The Javadocs can be browsed online: [JNCryptor Javadocs](http://rncryptor.github.io/JNCryptor/javadoc/).
+
+You can download binaries, documentation and source from the Releases page.  Maven users can copy the following snippet to retrieve the artifacts from Maven Central:
+
+```xml
+<dependency>
+    <groupId>org.cryptonode.jncryptor</groupId>
+    <artifactId>jncryptor</artifactId>
+    <version>1.1.0</version>
+</dependency>
+````
+
+
+
 News
 ----
 
@@ -11,6 +28,7 @@ Follow [@JNCryptor](https://twitter.com/JNCryptor) for notifications of releases
 
 | Date        | News           | 
 | ------------- | ------------- | 
+| 2014-10-05      | Version 1.2.0 released. Exposes an encryption method that takes salt and IV values. Adds support for caching encryption keys.  |
 | 2014-08-23      | Version 1.1.0 released. Adds support for streaming operations, plus constant time HMAC calculation. Apache Commons IO is no longer a dependency.  |
 | 2014-01-19      | Version 1.0.1 released. Fixes issue #4, which caused the wrong version number to be output in some situations.  |
 | 2014-01-13      | Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.  |
@@ -24,20 +42,7 @@ Follow [@JNCryptor](https://twitter.com/JNCryptor) for notifications of releases
 
 
 
-Getting JNCryptor
------------------
 
-You can download binaries, documentation and source from the Releases page.  Maven users can copy the following snippet to retrieve the artifacts from Maven Central:
-
-```xml
-<dependency>
-    <groupId>org.cryptonode.jncryptor</groupId>
-    <artifactId>jncryptor</artifactId>
-    <version>1.1.0</version>
-</dependency>
-````
-
-The Javadocs can also be browsed online: [JNCryptor Javadocs](http://rncryptor.github.io/JNCryptor/javadoc/).
 
 Using JNCryptor
 ----------------
