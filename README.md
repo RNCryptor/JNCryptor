@@ -14,7 +14,7 @@ You can download binaries, documentation and source from the Releases page.  Mav
 <dependency>
     <groupId>org.cryptonode.jncryptor</groupId>
     <artifactId>jncryptor</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ````
 
