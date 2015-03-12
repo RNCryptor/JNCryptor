@@ -72,7 +72,9 @@ There are plans afoot to include the ieration count in the data format (hopefull
 
 Android
 -------
+> **IMPORTANT**: Due to a bug in the Android SecureRandom implementation, JNCryptor is not currently safe to use in Android versions prior to 4.4. Please see [an announcement from Google](http://android-developers.blogspot.co.uk/2013/08/some-securerandom-thoughts.html) from back in 2013. The issue is tracked here as [Issue #25](https://github.com/RNCryptor/JNCryptor/issues/25).
 
+ 
 JNCryptor can be used in Android applications, v2.3.3 (Android 10) and above. Download the latest binary release and place the JAR in the `libs` folder for your project.
 
 Please note that very little Android testing has been completed and some users report compatibility problems with old versions of Android (see the Issues page). If I can find an easy way to do so, I'll start increasing my Android testing and improve the library accordingly. 
