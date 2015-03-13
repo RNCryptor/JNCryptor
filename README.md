@@ -3,6 +3,19 @@ JNCryptor
 
 JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/RNCryptor/RNCryptor) library for iOS.
 
+Android Assistance Needed
+-------------------------
+
+JNCryptor was originally written for use in a standard Java environment, but more and more people are using it on the Android platform. This makes sense, since RNCryptor was designed for use on iOS. It is well overdue for Android to receive more love as a target platform. Specifically, the following tasks are required:
+
+- Address the security vulnerability affecting Android < 4.4 (see [Issue #25](https://github.com/RNCryptor/JNCryptor/issues/25)).
+ - Improve performance by implementing critical parts of the code natively.
+ - Thoroughly test more Android versions and try to adjust the code to support older editions.
+ 
+It will probably be necessary to create a separate branch for this, or perhaps even a fresh project. Since Android is not a platform I'm familiar with, I'd like to invite interested parties to get involved to help with this.
+
+Please send me an email if interested, my details are in my GitHub profile.
+
 Getting JNCryptor
 -----------------
 
