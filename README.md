@@ -3,18 +3,6 @@ JNCryptor
 
 JNCryptor is an easy-to-use library for encrypting data with AES. It was ported to Java from the [RNCryptor](https://github.com/RNCryptor/RNCryptor) library for iOS.
 
-Android Assistance Needed
--------------------------
-
-JNCryptor was originally written for use in a standard Java environment, but more and more people are using it on the Android platform. This makes sense, since RNCryptor was designed for use on iOS. It is well overdue for Android to receive more love as a target platform. Specifically, the following tasks are required:
-
-- Address the security vulnerability affecting Android < 4.4 (see [Issue #25](https://github.com/RNCryptor/JNCryptor/issues/25)).
-- Improve performance by implementing critical parts of the code natively.
-- Thoroughly test more Android versions and try to adjust the code to support older editions.
- 
-It will probably be necessary to create a separate branch for this, or perhaps even a fresh project. Since Android is not a platform I'm familiar with, I'd like to invite interested parties to get involved to help with this.
-
-Please send me an email if interested, my details are in my GitHub profile.
 
 Getting JNCryptor
 -----------------
@@ -80,17 +68,12 @@ Iterations
 
 JNCryptor supports changing the number of PBKDF2 iterations performed by the library. Unfortunately, the number of iterations is not currently encoded in the data format, which means that both sides of the conversation need to know how many iterations have been used.
 
-There are plans afoot to include the ieration count in the data format (hopefully in v4). Until that time, use these feature with caution.
-
 
 Android
 -------
-> **IMPORTANT**: Due to a bug in the Android SecureRandom implementation, JNCryptor is not currently safe to use in Android versions prior to 4.4. Please see [an announcement from Google](http://android-developers.blogspot.co.uk/2013/08/some-securerandom-thoughts.html) from back in 2013. The issue is tracked here as [Issue #25](https://github.com/RNCryptor/JNCryptor/issues/25).
+> **IMPORTANT**: Due to a bug in the Android SecureRandom implementation, JNCryptor is not currently safe to use in Android versions prior to 4.4. Please see [an announcement from Google](http://android-developers.blogspot.co.uk/2013/08/some-securerandom-thoughts.html) from back in 2013. The issue is tracked here as [Issue #25](https://github.com/RNCryptor/JNCryptor/issues/25), but will not be fixed in this project.
 
- 
-JNCryptor can be used in Android applications, v2.3.3 (Android 10) and above. Download the latest binary release and place the JAR in the `libs` folder for your project.
-
-Please note that very little Android testing has been completed and some users report compatibility problems with old versions of Android (see the Issues page). If I can find an easy way to do so, I'll start increasing my Android testing and improve the library accordingly. 
+In general, JNCryptor is not recommended for Android, due to performance issues. See [Issue #23](https://github.com/RNCryptor/JNCryptor/issues/23) for more info.
 
 
 Data Format
