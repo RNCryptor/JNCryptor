@@ -133,6 +133,7 @@ public class AES256JNCryptor implements JNCryptor {
    * PBKDF iterations.
    */
   public AES256JNCryptor() {
+    PRNGFixes.apply();
   }
 
   /**
@@ -143,6 +144,8 @@ public class AES256JNCryptor implements JNCryptor {
    *          the number of PBKDF iterations to perform
    */
   public AES256JNCryptor(int iterations) {
+    this();
+
     Validate.isTrue(iterations > 0, "Iteration value must be positive.");
 
     this.iterations = iterations;
