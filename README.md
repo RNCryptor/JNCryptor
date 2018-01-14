@@ -71,8 +71,6 @@ The data format supported by this library is v3. Both v1 and v0 have a [signific
 News
 ----
 
-Follow [@JNCryptor](https://twitter.com/JNCryptor) for notifications of releases.
-
 
 | Date        | News           | 
 | ------------- | ------------- | 
