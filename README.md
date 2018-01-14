@@ -67,20 +67,3 @@ History
 --------
 
 The data format supported by this library is v3. Both v1 and v0 have a [significant security flaw](http://robnapier.net/blog/rncryptor-hmac-vulnerability-827) whereby only the ciphertext was included in the HMAC value. There are no plans to support v1 or v0. v2 was deprecated due to a multi-byte password issue discovered in the objective-c implementation.
-
-News
-----
-
-
-| Date        | News           | 
-| ------------- | ------------- | 
-| 2014-10-05      | Version 1.2.0 released. Exposes an encryption method that takes salt and IV values. Adds support for caching encryption keys.  |
-| 2014-08-23      | Version 1.1.0 released. Adds support for streaming operations, plus constant time HMAC calculation. Apache Commons IO is no longer a dependency.  |
-| 2014-01-19      | Version 1.0.1 released. Fixes issue #4, which caused the wrong version number to be output in some situations.  |
-| 2014-01-13      | Version 1.0.0 released. This version is more streamlined, with no external dependencies. The previously deprecated factory classes are now removed.  |
-| 2014-01-13      | Projected moved to GitHub. |
-| 2014-01-07      | Version 0.5 released. This version supports v3 of the RNCryptor format, which was necessary due to a bug in the objective-c implementation (see [original issue here](https://github.com/rnapier/RNCryptor/issues/77)). This new version of JNCryptor deprecates the factory-style method of creating instances in favour of a new class, `AES256JNCryptor`. See the documentation for more details. | 
-| 2013-12-27      | Version 0.4 released. Now the number of PBKDF iterations can be set. Note: read the caution below before considering using variable iterations.      | 
-| 2013-02-28 | Version 0.3 released. Fixes an issue where spaces in the path to the JAR caused the factory to fail.      | 
-| 2013-02-03 | Version 0.2 released. No functionality changes, however the dependencies are now correctly contained in the binary downloads.      |
-| 2013-01-31 | Version 0.1 released.      |
