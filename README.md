@@ -20,6 +20,13 @@ You can download binaries, documentation and source from the [Releases page](htt
     <version>1.2.0</version>
 </dependency>
 ````
+Using Gradle
+
+```
+dependecies{
+    compile 'org.cryptonode.jncryptor:jncryptor:1.2.0'
+}
+````
 
 Using JNCryptor
 ----------------
